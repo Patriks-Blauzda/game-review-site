@@ -1,0 +1,11 @@
+<h4><a href="/">Home</a></h4>
+<H2>{{ game.title }}</H2>
+{% if post_list %}
+    <ul>
+        {% for post in post_list.all %}
+            <li><a href="{% url 'website:post' post.id %}">{{ post.title }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No posts are available.</p>
+{% endif %}

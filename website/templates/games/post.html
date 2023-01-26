@@ -1,0 +1,15 @@
+<h4><a href="/">Home</a></h4>
+{% if post %}
+    <h2>{{ post.title }}</h2>
+    <p>Game: <a href="{% url 'website:game' post.game.id %}">{{ post.game.title }}</a></p>
+    <p>{{ post.content|linebreaks }}</p>
+
+    {% if post.pubdate %}
+        <p>Posted: {{ post.pubdate }}</p>
+    {% else %}
+        <p> Posted: Time unspecified</p>
+    {% endif %}
+
+{% else %}
+    <p>Nothing here</p>
+{% endif %}
