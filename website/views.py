@@ -6,7 +6,7 @@ from .models import Post
 
 # Create your views here.
 class IndexView(generic.ListView):
-    template_name = 'games/index.html'
+    template_name = 'website/index.html'
     context_object_name = 'games_list'
 
     def get_queryset(self):
@@ -15,7 +15,7 @@ class IndexView(generic.ListView):
 
 class GameView(generic.ListView):
     model = Game
-    template_name = 'games/game.html'
+    template_name = 'website/game.html'
     context_object_name = 'post_list'
 
     def get_queryset(self):
@@ -24,7 +24,7 @@ class GameView(generic.ListView):
 
 class PostView(generic.DetailView):
     model = Post
-    template_name = 'games/post.html'
+    template_name = 'website/post.html'
 
 
 class EntityView(generic.DetailView):

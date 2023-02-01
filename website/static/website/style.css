@@ -1,0 +1,73 @@
+.navbar {
+    z-index: 1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 10%;
+    width: 100%;
+    overflow: hidden;
+    background-color: #db3d3d;
+    font-family: Arial;
+}
+
+
+.navbar a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 1% 1%;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+
+.sidebar {
+    z-index: 1;
+
+    height: 90%;
+    width: 18%;
+
+    position: fixed;
+    bottom: 0;
+    right: 0;
+
+    background-color: #ded3d3;
+    overflow-x: hidden;
+
+    font-family: Arial;
+}
+
+
+.sidebar p {
+    padding: 6px 8px 6px 16px;
+    font-size: 20px;
+    display: block;
+}
+
+
+.sidebar a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #000000;
+    display: block;
+}
+
+
+.sidebar a:hover {
+    color: #818181;
+}
+
+.title {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.main {
+    margin-right: 25%;
+    padding: 4% 2%;
+    font-family: Arial;
+    font-size: 18px;
+}
+

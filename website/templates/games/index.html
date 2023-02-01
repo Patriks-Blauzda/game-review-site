@@ -1,9 +1,0 @@
-{% if games_list %}
-    <ul>
-        {% for game in games_list.all|dictsort:"title" %}
-            <li><a href="{% url 'website:game' game.id %}">{{ game.title }}</a></li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No games are available.</p>
-{% endif %}

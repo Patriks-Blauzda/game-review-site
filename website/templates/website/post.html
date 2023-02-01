@@ -1,0 +1,31 @@
+{% extends "website/base.html" %}
+
+{% block sidebar %}
+    {% if post %}
+            <a href="{% url 'website:game' post.game.id %}" style="font-size: 45px;">{{ post.game.title }}</a>
+            <p>{{ post.game.description }}</p>
+            <p>Released: {{ post.game.releasedate }}</p>
+    {% else %}
+        <p>No game found.</p>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+{% if post %}
+
+    <div class="title">
+        <h1>{{ post.title }}</h1>
+        <p style="text-align: right; float: right; width: 33.333333%;">
+            {% if post.pubdate %}
+                Posted: {{ post.pubdate }}
+            {% else %}
+                Posted: Time unspecified
+            {% endif %}
+        </p>
+    </div>
+
+    <p>{{ post.content|linebreaks }}</p>
+{% else %}
+    <p>Nothing here</p>
+{% endif %}
+{% endblock %}

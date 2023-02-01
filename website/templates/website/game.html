@@ -1,0 +1,24 @@
+{% extends "website/base.html" %}
+
+{% block sidebar %}
+    {% if post_list %}
+            <p style="font-size: 45px;">{{ post_list.first.game.title }}</p>
+            <p>{{ post_list.first.game.description }}</p>
+            <p>Released: {{ post_list.first.game.releasedate }}</p>
+    {% else %}
+        <p>No content present for this game.</p>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <H2>{{ game.title }}</H2>
+    {% if post_list %}
+        <ul>
+            {% for post in post_list.all %}
+                <li><a href="{% url 'website:post' post.id %}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts are available.</p>
+    {% endif %}
+{% endblock %}
