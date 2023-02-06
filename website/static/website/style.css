@@ -1,5 +1,9 @@
+body {
+    font-family: Arial;
+}
+
 .navbar {
-    z-index: 1;
+    z-index: 2;
     position: fixed;
     top: 0;
     left: 0;
@@ -7,22 +11,23 @@
     width: 100%;
     overflow: hidden;
     background-color: #db3d3d;
-    font-family: Arial;
 }
 
 
 .navbar a {
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 1% 1%;
-  text-decoration: none;
-  font-size: 17px;
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 1% 1%;
+    text-decoration: none;
+    font-size: 17px;
+    text-size-adjust: none;
 }
 
 
+
 .sidebar {
-    z-index: 1;
+    z-index: 2;
 
     height: 90%;
     width: 18%;
@@ -34,7 +39,7 @@
     background-color: #ded3d3;
     overflow-x: hidden;
 
-    font-family: Arial;
+    border-left: 1px solid;
 }
 
 
@@ -58,6 +63,7 @@
     color: #818181;
 }
 
+
 .title {
     display: flex;
     justify-content: space-between;
@@ -67,7 +73,58 @@
 .main {
     margin-right: 25%;
     padding: 4% 2%;
-    font-family: Arial;
     font-size: 18px;
 }
 
+
+
+.list {
+    list-style-type: none;
+}
+
+
+.list a {
+    text-decoration: none;
+    color: black;
+}
+
+
+.list-element {
+    border-style: solid;
+    border-width: 1px;
+    margin-top: -0.7px;
+    padding: 5px 5px 5px 5px;
+    width: 100%;
+    max-width: 100%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.list-text {
+    display: inline-block;
+    padding-right: 10px;
+    word-break: break-word;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 80%;
+}
+
+.list-element img {
+    z-index: 1;
+    float: left;
+    padding: 5px 20px 5px 5px;
+    height: 148px;
+    width: 148px;
+}
+
+
+#main-title {
+    display: block;
+    position: fixed;
+    width: 120%;
+    height: 8%;
+    font-size: 25px;
+    margin-top: 0.3%;
+    left: 0;
+}

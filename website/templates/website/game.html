@@ -2,23 +2,40 @@
 
 {% block sidebar %}
     {% if post_list %}
-            <p style="font-size: 45px;">{{ post_list.first.game.title }}</p>
+            <a href="{% url 'website:game' post_list.first.game.id %}">{{ post_list.first.game.title }}</a>
             <p>{{ post_list.first.game.description }}</p>
             <p>Released: {{ post_list.first.game.releasedate }}</p>
     {% else %}
-        <p>No content present for this game.</p>
+        <p>No content present for this post.</p>
     {% endif %}
 {% endblock %}
 
 {% block main %}
-    <H2>{{ game.title }}</H2>
     {% if post_list %}
+
         <ul>
-            {% for post in post_list.all %}
-                <li><a href="{% url 'website:post' post.id %}">{{ post.title }}</a></li>
-            {% endfor %}
+            <div class="list">
+                <li>
+
+                    {% for post in post_list.all %}
+                            <a href="{% url 'website:post' post.id %}">
+                                <div class="list-element">
+                                        <img src="https://via.placeholder.com/148">
+                                        <h3>{{ post.title }}</h3>
+                                    <div class="list-text">
+                                        {{ post.content }}
+                                    </div>
+
+                                </div>
+                            </a>
+                    {% endfor %}
+
+                </li>
+            </div>
         </ul>
+
     {% else %}
         <p>No posts are available.</p>
     {% endif %}
+
 {% endblock %}
