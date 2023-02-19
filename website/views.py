@@ -66,7 +66,7 @@ class GameForm(forms.ModelForm):
     name = "game"
     title = forms.CharField()
     description = forms.CharField(label="Game Description", widget=forms.Textarea)
-    releasedate = forms.DateField(label="Release Date")
+    releasedate = forms.DateField(label="Release Date", required=False)
 
     class Meta:
         model = Game
@@ -138,20 +138,23 @@ class CreateView(generic.ListView):
         if self.kwargs['object'] == "entity":
             entity = None
 
-            if form.is_valid():
-                match self.kwargs['entity']:
-                    case 'developer':
-                        form = DeveloperForm(request.POST)
+            match self.kwargs['entity']:
+                case 'developer':
+                    form = DeveloperForm(request.POST)
+
+                    if form.is_valid():
                         entity = Developer(
                             title=form.cleaned_data['title'], description=form.cleaned_data['description'], image_id=image_id,
                         )
-                    case 'publisher':
-                        form = PublisherForm(request.POST)
+                case 'publisher':
+                    form = PublisherForm(request.POST)
+
+                    if form.is_valid():
                         entity = Publisher(
                             title=form.cleaned_data['title'], description=form.cleaned_data['description'], image_id=image_id,
                         )
 
-                entity.save()
+            entity.save()
 
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
 
