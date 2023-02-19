@@ -1,27 +1,29 @@
 {% extends "website/base.html" %}
 
 {% block sidebar %}
-    {% if post_list %}
-            <a href="{% url 'website:game' post_list.first.game.id %}">{{ post_list.first.game.title }}</a>
-            <p>{{ post_list.first.game.description }}</p>
-            <p>Released: {{ post_list.first.game.releasedate }}</p>
-    {% else %}
-        <p>No content present for this post.</p>
-    {% endif %}
+    <a href="/create/post/{{ current_game.id }}">Write a review</a>
+    <a href="{% url 'website:game' current_game.id %}">{{ current_game.title }}</a>
+    <p>{{ current_game.description }}</p>
+    <p>Released: {{ current_game.releasedate }}</p>
 {% endblock %}
+
 
 {% block main %}
     {% if post_list %}
-
         <ul>
             <div class="list">
                 <li>
-
                     {% for post in post_list.all %}
                             <a href="{% url 'website:post' post.id %}">
                                 <div class="list-element">
-                                        <img src="https://via.placeholder.com/148">
-                                        <h3>{{ post.title }}</h3>
+                                    {% if game.image %}
+                                        <img alt="a" src={{ post.image.binary_blob }}>
+                                    {% else %}
+                                        <img src="" alt="No image">
+                                    {% endif %}
+
+
+                                    <h3>{{ post.title }}</h3>
                                     <div class="list-text">
                                         {{ post.content }}
                                     </div>

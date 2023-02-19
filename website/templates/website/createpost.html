@@ -1,0 +1,24 @@
+{% extends "website/base.html" %}
+
+{% block main %}
+	<form method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+
+		<button type="submit">Submit</button>
+		<br>
+
+		<p>
+			Thumbnail:
+			<input type="file" id="Thumbnail" name="file">
+		</p>
+
+		<p>{% for field in form %}
+			<br>
+			{{ field.label_tag }}
+			<br>
+			{{ field }}
+		{% endfor %}</p>
+
+	</form>
+
+{% endblock %}
