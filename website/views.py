@@ -111,14 +111,13 @@ class CreateView(generic.ListView):
 
             if form.is_valid():
                 post = Post(
-                    title=form.cleaned_data['title'], content=form.cleaned_data['content'],
+                    title=form.cleaned_data['title'], content=form.cleaned_data['content'], image_id=image_id,
                     pubdate=timezone.now(), game_id=int(self.kwargs['game_id']),
                 )
 
-                if image_id is not None:
-                    post.image_id = image_id
-
                 post.save()
+
+                return http.HttpResponseRedirect("http://127.0.0.1:8000/post/%s/" % post.id)
 
 
         if self.kwargs['object'] == "game":
@@ -133,6 +132,8 @@ class CreateView(generic.ListView):
                 )
 
                 game.save()
+
+                game.refresh_from_db()
 
 
         if self.kwargs['object'] == "entity":
@@ -201,8 +202,6 @@ def add_image_to_db(image):
     row = Image.objects.create(binary_blob=encoded_blob)
 
     row.refresh_from_db()
-
-    print(row.id)
 
     return row.id
 

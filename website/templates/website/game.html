@@ -16,7 +16,7 @@
                     {% for post in post_list.all %}
                             <a href="{% url 'website:post' post.id %}">
                                 <div class="list-element">
-                                    {% if game.image %}
+                                    {% if post.image %}
                                         <img alt="a" src={{ post.image.binary_blob }}>
                                     {% else %}
                                         <img src="" alt="No image">
