@@ -11,6 +11,8 @@ urlpatterns = [
 
     path('developer/<int:pk>/', views.EntityView.as_view(), name='entity'),
 
+    path('delete/<str:object>/<int:obj_id>/', views.Delete, name='delete'),
+
     path('create/', views.CreateView.as_view(), name='create'),
     path('create/<str:object>/', views.CreateView.as_view(), name='create'),
     path('create/<str:object>/<int:game_id>/', views.CreateView.as_view(), name='create'),

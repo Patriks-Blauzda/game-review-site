@@ -50,6 +50,10 @@ class PostView(generic.DetailView):
     template_name = 'website/post.html'
 
 
+class EntityView(generic.DetailView):
+    pass
+
+
 
 class PostForm(forms.ModelForm):
     name = "post"
@@ -206,7 +210,23 @@ def add_image_to_db(image):
     return row.id
 
 
+def Delete(request, **kwargs):
+    print("\n\n\n\n\n")
+    match kwargs['object']:
+        case "game":
+            Game.objects.filter(id=kwargs['obj_id']).delete()
+            return http.HttpResponseRedirect("/")
 
+        case "post":
+            game_id = Post.objects.filter(id=kwargs['obj_id'])[0].game.id
+            Post.objects.filter(id=kwargs['obj_id']).delete()
+            return http.HttpResponseRedirect("/game/%s" % str(game_id))
 
-class EntityView(generic.DetailView):
-    pass
+        case "developer":
+            Developer.objects.filter(id=kwargs['obj_id']).delete()
+            return http.HttpResponseRedirect("/")
+
+        case "publisher":
+            Publisher.objects.filter(id=kwargs['obj_id']).delete()
+            return http.HttpResponseRedirect("/")
+

@@ -22,7 +22,7 @@
                                     <div class="list-text">
                                         {{ game.description }}
                                     </div>
-
+                                    <a id="delete" href="{% url 'website:delete' 'game' game.id %}">delete</a>
                                 </div>
                             </a>
                     {% endfor %}

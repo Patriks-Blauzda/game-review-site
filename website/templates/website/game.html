@@ -1,7 +1,7 @@
 {% extends "website/base.html" %}
 
 {% block sidebar %}
-    <a href="/create/post/{{ current_game.id }}">Write a review</a>
+    <a href="{% url 'website:create' 'post' current_game.id %}">Write a review</a>
     <a href="{% url 'website:game' current_game.id %}">{{ current_game.title }}</a>
     <p>{{ current_game.description }}</p>
     <p>Released: {{ current_game.releasedate }}</p>
@@ -27,6 +27,8 @@
                                     <div class="list-text">
                                         {{ post.content }}
                                     </div>
+
+                                    <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
 
                                 </div>
                             </a>
