@@ -2,6 +2,6 @@
 
 {% block main %}
     <p><a href="{% url 'website:create' 'game' %}">Add a game</a></p>
-    <p><a href="{% url 'website:create' 'developer' %}">Add a developer</a></p>
-    <p><a href="{% url 'website:create' 'publisher' %}">Add a publisher</a></p>
+    <p><a href="{% url 'website:create' 'entity' 'developer' %}">Add a developer</a></p>
+    <p><a href="{% url 'website:create' 'entity' 'publisher' %}">Add a publisher</a></p>
 {% endblock %}

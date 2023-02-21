@@ -173,21 +173,21 @@ class CreateView(generic.ListView):
         if self.kwargs:
             if self.kwargs['object'] == "game":
                 self.template_name = 'website/creategame.html'
-                self.form_class = GameForm()
+                self.form_class = GameForm
 
             elif self.kwargs['object'] == "post":
                 self.template_name = 'website/createpost.html'
                 self.form_class = PostForm
 
-            elif self.kwargs['object'] == "entity":
+            if self.kwargs['object'] == "entity":
                 self.template_name = 'website/createdevpub.html'
 
                 if self.kwargs['entity'] == "developer":
                     self.form_class = DeveloperForm
                     self.form_class.Meta.model = Developer
 
-                elif self.kwargs['entity'] == "publisher":
-                    self.form_class = DeveloperForm
+                if self.kwargs['entity'] == "publisher":
+                    self.form_class = PublisherForm
                     self.form_class.Meta.model = Publisher
 
 
@@ -211,7 +211,6 @@ def add_image_to_db(image):
 
 
 def Delete(request, **kwargs):
-    print("\n\n\n\n\n")
     match kwargs['object']:
         case "game":
             Game.objects.filter(id=kwargs['obj_id']).delete()
