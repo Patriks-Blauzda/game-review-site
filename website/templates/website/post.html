@@ -2,10 +2,10 @@
 
 {% block sidebar %}
     {% if post %}
-        <a href="{% url 'website:create' 'post' post.game.id %}">Write a review</a>
         <a href="{% url 'website:game' post.game.id %}">{{ post.game.title }}</a>
         <p>{{ post.game.description }}</p>
         <p>Released: {{ post.game.releasedate }}</p>
+        <a href="{% url 'website:create' 'post' post.game.id %}">Write a review for {{ post.game.title }}</a>
     {% endif %}
 {% endblock %}
 
@@ -21,6 +21,7 @@
             {% endif %}
         </p>
     </div>
+    <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
 
     <p>{{ post.content|linebreaks }}</p>
 {% else %}

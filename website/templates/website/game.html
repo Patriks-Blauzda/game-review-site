@@ -1,15 +1,34 @@
 {% extends "website/base.html" %}
 
 {% block sidebar %}
-    <a href="{% url 'website:create' 'post' current_game.id %}">Write a review</a>
     <a href="{% url 'website:game' current_game.id %}">{{ current_game.title }}</a>
     <p>{{ current_game.description }}</p>
     <p>Released: {{ current_game.releasedate }}</p>
+
+    <a href="{% url 'website:create' 'post' current_game.id %}" style="font-size: 22px;">
+        Write a review for {{ current_game.title }}
+    </a>
 {% endblock %}
 
 
 {% block main %}
     {% if post_list %}
+        <form method="get">
+            <select name="sort" id="sort" style="margin-left: 40px;">
+                <option hidden="hidden" selected="selected" value="">Sort...</option>
+
+                <option value="title">A-Z</option>
+                <option value="-title">Z-A</option>
+                <option value="pubdate">Published Ascending</option>
+                <option value="-pubdate">Published Descending</option>
+                <option value="author">Author Ascending</option>
+                <option value="-author">Author Descending</option>
+                <option value="id">Added Ascending</option>
+                <option value="-id">Added Descending</option>
+            </select>
+            <input type="submit" value="Sort">
+        </form>
+
         <ul>
             <div class="list">
                 <li>
@@ -27,8 +46,20 @@
                                     <div class="list-text">
                                         {{ post.content }}
                                     </div>
+                                    <p>
+                                        Published: {{ post.pubdate }} |
+                                        ID: {{ post.id }}
+                                    </p>
 
-                                    <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
+                                    {% if post.author %}
+                                        <a id="author" href="{% url 'website:profile' post.author.id %}">
+                                            Author: {{ post.author.username }}
+                                        </a>
+                                    {% endif %}
+
+                                    {% if request.user.is_staff or request.user.username == post.author.username %}
+                                        <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
+                                    {% endif %}
 
                                 </div>
                             </a>

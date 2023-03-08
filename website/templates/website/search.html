@@ -1,0 +1,68 @@
+{% extends "website/base.html" %}
+{% load web_extras %}
+
+{% block main %}
+  {% if object_list %}
+    <form method="get">
+
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+
+        <select name="sort" id="sort" style="margin-left: 40px;">
+            <option hidden="hidden" selected="selected" value="">Sort...</option>
+
+            <option value="title">A-Z</option>
+            <option value="-title">Z-A</option>
+            <option value="date">Date Ascending</option>
+            <option value="-date">Date Descending</option>
+            <option value="id">Added Ascending</option>
+            <option value="-id">Added Descending</option>
+        </select>
+        <input type="submit" value="Sort">
+    </form>
+
+    <ul>
+        <div class="list">
+            <li>
+                {% for result in object_list %}
+                    <a href="{% url result|get_url result.id %}">
+                        <div class="list-element">
+                            {% if result.image %}
+                                <img alt="a" src={{ result.image.binary_blob }}>
+                            {% else %}
+                                <img src="" alt="No image">
+                            {% endif %}
+
+
+                            <h3>
+                                {{ result.title }}
+                                {{ result.username }}
+                            </h3>
+
+                            <h5 style="float: right; margin-top: -65px; margin-right: 5px;">{{ result|get_model_name }}</h5>
+
+                            <div class="list-text">
+                                {{ result.content }}
+                                {{ result.description }}
+                            </div>
+
+                            <p>
+                                Date: {{ result.releasedate }} {{ result.foundingdate }} {{ result.pubdate }} {{ result.date_joined }}
+                                <br>
+                                ID: {{ result.id }}
+                            </p>
+
+                            {% if result.author %}
+                                <a id="author" href="{% url 'website:profile' result.author.id %}">
+                                    Author: {{ result.author.username }}
+                                </a>
+                            {% endif %}
+
+                        </div>
+                    </a>
+                {% endfor %}
+            </li>
+        </div>
+    </ul>
+  {% endif %}
+
+{% endblock %}

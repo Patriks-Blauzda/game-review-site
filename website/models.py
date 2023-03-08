@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 # Create your models here.
 
@@ -19,6 +19,9 @@ class Developer(models.Model):
 
     def __str__(self):
         return self.title
+
+    def __ge__(self, other):
+        return self.title.lower() > other.title.lower()
 
 
 class Publisher(models.Model):
@@ -45,6 +48,9 @@ class Game(models.Model):
     def __str__(self):
         return self.title
 
+    def __ge__(self, other):
+        return self.title.lower() > other.title.lower()
+
 
 class Post(models.Model):
     type = models.CharField(max_length=10)
@@ -57,7 +63,7 @@ class Post(models.Model):
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
 
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, blank=True, null=True)
 

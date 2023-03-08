@@ -1,5 +1,6 @@
 from . import views
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 
 app_name = 'website'
 urlpatterns = [
@@ -11,12 +12,19 @@ urlpatterns = [
 
     path('developer/<int:pk>/', views.EntityView.as_view(), name='entity'),
 
-    path('delete/<str:object>/<int:obj_id>/', views.Delete, name='delete'),
+    path('profile/<int:pk>/', views.UserProfile.as_view(), name='profile'),
 
-    path('create/', views.CreateView.as_view(), name='create'),
-    path('create/<str:object>/', views.CreateView.as_view(), name='create'),
-    path('create/<str:object>/<int:game_id>/', views.CreateView.as_view(), name='create'),
-    path('create/<str:object>/<str:entity>/', views.CreateView.as_view(), name='create'),
+    path('delete/<str:object>/<int:obj_id>/', views.delete, name='delete'),
 
-    # 'delete/'
+    path('create/', login_required(views.CreateView.as_view(), login_url="/account/login/"), name='create'),
+    path('create/<str:object>/', login_required(views.CreateView.as_view(), login_url="/account/login/"), name='create'),
+    path('create/<str:object>/<int:game_id>/', login_required(views.CreateView.as_view(), login_url="/account/login/"), name='create'),
+    path('create/<str:object>/<str:entity>/', login_required(views.CreateView.as_view(), login_url="/account/login/"), name='create'),
+
+    path('account/<str:action>/', views.AccountView.as_view(), name='account'),
+
+    path('logout/', views.log_user_out, name='logout'),
+
+    path('search/', views.SearchView.as_view(), name='search'),
+    # path('search/<str:query>', views.SearchView.as_view(), name='search'),
 ]

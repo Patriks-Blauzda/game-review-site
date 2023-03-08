@@ -1,0 +1,40 @@
+{% extends "website/base.html" %}
+
+{% block main %}
+    <h1>{{ account.username }}</h1>
+    <p>Date joined: {{ account.date_joined }}</p>
+    <p>Last online: {{ account.last_login }}</p>
+    <br>
+    <h3>User posts:</h3>
+    {% if acc_posts %}
+            <ul>
+            <div class="list">
+                <li>
+                    {% for post in acc_posts.all %}
+                            <a href="{% url 'website:post' post.id %}">
+                                <div class="list-element">
+                                    {% if post.image %}
+                                        <img alt="a" src={{ post.image.binary_blob }}>
+                                    {% else %}
+                                        <img src="" alt="No image">
+                                    {% endif %}
+
+
+                                    <h3>{{ post.title }}</h3>
+                                    <div class="list-text">
+                                        {{ post.content }}
+                                    </div>
+
+                                    {% if request.user.is_staff or request.user.username == post.author.username %}
+                                        <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
+                                    {% endif %}
+
+                                </div>
+                            </a>
+                    {% endfor %}
+
+                </li>
+            </div>
+        </ul>
+    {% endif %}
+{% endblock %}

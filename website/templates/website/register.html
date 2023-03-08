@@ -1,0 +1,17 @@
+{% extends "website/base.html" %}
+
+{% block main %}
+    <h2>Register</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <p>
+            {% for field in form %}
+                <br>
+                {{ field.label_tag }}
+                <br>
+                {{ field }}
+            {% endfor %}
+        </p>
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}

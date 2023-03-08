@@ -3,11 +3,12 @@ body {
 }
 
 .navbar {
-    z-index: 2;
+    z-index: 3;
     position: fixed;
     top: 0;
     left: 0;
-    height: 10%;
+    height: auto;
+    min-height: 5vw;
     width: 100%;
     overflow: hidden;
     background-color: #db3d3d;
@@ -15,15 +16,24 @@ body {
 
 
 .navbar a {
-    float: left;
+    display: inline-block;
     color: #f2f2f2;
-    text-align: center;
-    padding: 1% 1%;
+    text-align: right;
+    padding: 1% 1% 0% 3.5%;
     text-decoration: none;
-    font-size: 17px;
-    text-size-adjust: none;
+    font-size: 1.6vw;
 }
 
+
+.navbar form {
+    float: right;
+    padding: 10px;
+}
+
+
+.user {
+    text-align: left;
+}
 
 
 .sidebar {
@@ -149,6 +159,13 @@ body {
 #delete {
     display: inline-block;
     position: absolute;
-    bottom: 0px;
+    bottom: 5px;
     right: 10px;
+}
+
+#author {
+    display: inline-block;
+    position: absolute;
+    bottom: 5px;
+    left: 185px;
 }
