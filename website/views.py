@@ -385,6 +385,10 @@ def sort_id(e):
     return e.id
 
 
+def sort_type(e):
+    return e.__class__.__name__
+
+
 def get_search_results(query, sortmethod):
     post = Post.objects.filter(Q(title__icontains=query) | Q(content__icontains=query))
     game = Game.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
@@ -407,6 +411,10 @@ def get_search_results(query, sortmethod):
             query_list.sort(key=sort_id)
         case "-id":
             query_list.sort(key=sort_id, reverse=True)
+        case "type":
+            query_list.sort(key=sort_type)
+        case "-type":
+            query_list.sort(key=sort_type, reverse=True)
 
     return query_list
 
