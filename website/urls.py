@@ -10,7 +10,8 @@ urlpatterns = [
 
     path('post/<int:pk>/', views.PostView.as_view(), name='post'),
 
-    path('developer/<int:pk>/', views.EntityView.as_view(), name='entity'),
+    path('entity/developer/<int:pk>/', views.DeveloperView.as_view(), name='developer'),
+    path('entity/publisher/<int:pk>/', views.PublisherView.as_view(), name='publisher'),
 
     path('profile/<int:pk>/', views.UserProfile.as_view(), name='profile'),
 

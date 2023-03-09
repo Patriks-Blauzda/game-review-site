@@ -39,9 +39,6 @@ class IndexView(generic.TemplateView):
             else:
                 order = Lower(order[1:]).desc()
 
-
-
-
         result = {
             'games_list': Game.objects.order_by(order)
         }
@@ -49,12 +46,10 @@ class IndexView(generic.TemplateView):
         return result
 
 
-
 class GameView(generic.ListView):
     model = Game
     template_name = 'website/game.html'
     context_object_name = 'post_list'
-
 
     def get_context_data(self, **kwargs):
         order = "title"
@@ -65,7 +60,6 @@ class GameView(generic.ListView):
             else:
                 order = Lower(order[1:]).desc()
 
-
         context = {
             'post_list': Post.objects.filter(game=self.kwargs['pk']).order_by(order),
             'current_game': Game.objects.filter(id=self.kwargs['pk'])[0],
@@ -74,15 +68,31 @@ class GameView(generic.ListView):
         return context
 
 
-
 class PostView(generic.DetailView):
     model = Post
     template_name = 'website/post.html'
 
 
-class EntityView(generic.DetailView):
-    pass
+class DeveloperView(generic.DetailView):
+    model = Developer
+    template_name = 'website/entity.html'
 
+    def get_context_data(self, **kwargs):
+        return {
+            'entity': Developer.objects.filter(id=self.kwargs['pk'])[0],
+            'games': Game.objects.filter(developer=self.kwargs['pk'])
+        }
+
+
+class PublisherView(generic.DetailView):
+    model = Publisher
+    template_name = 'website/entity.html'
+
+    def get_context_data(self, **kwargs):
+        return {
+            'entity': Publisher.objects.filter(id=self.kwargs['pk'])[0],
+            'games': Game.objects.filter(publisher=self.kwargs['pk'])
+        }
 
 
 class PostForm(forms.ModelForm):
@@ -126,10 +136,8 @@ class PublisherForm(forms.ModelForm):
         widgets = {'foundingdate': DateInput(attrs={'type': 'date'})}
 
 
-
 class CreateView(generic.ListView):
     template_name = 'website/createredirect.html'
-
 
     def post(self, request, **kwargs):
         form = None
@@ -137,7 +145,6 @@ class CreateView(generic.ListView):
 
         if request.FILES:
             image_id = add_image_to_db(request.FILES["file"])
-
 
         if self.kwargs['object'] == "post":
             form = PostForm(request.POST)
@@ -148,11 +155,9 @@ class CreateView(generic.ListView):
                     pubdate=timezone.now(), game_id=int(self.kwargs['game_id']), author=request.user,
                 )
 
-
                 post.save()
 
                 return http.HttpResponseRedirect("http://127.0.0.1:8000/post/%s/" % post.id)
-
 
         if self.kwargs['object'] == "game":
             form = GameForm(request.POST)
@@ -168,7 +173,6 @@ class CreateView(generic.ListView):
 
                 game.refresh_from_db()
 
-
         if self.kwargs['object'] == "entity":
             entity = None
 
@@ -178,25 +182,24 @@ class CreateView(generic.ListView):
 
                     if form.is_valid():
                         entity = Developer(
-                            title=form.cleaned_data['title'], description=form.cleaned_data['description'], image_id=image_id,
+                            title=form.cleaned_data['title'], description=form.cleaned_data['description'],
+                            image_id=image_id,
                         )
                 case 'publisher':
                     form = PublisherForm(request.POST)
 
                     if form.is_valid():
                         entity = Publisher(
-                            title=form.cleaned_data['title'], description=form.cleaned_data['description'], image_id=image_id,
+                            title=form.cleaned_data['title'], description=form.cleaned_data['description'],
+                            image_id=image_id,
                         )
 
             entity.save()
 
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
 
-
     def get_queryset(self):
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
-
-
 
     def get_context_data(self, **kwargs):
         if self.kwargs:
@@ -219,7 +222,6 @@ class CreateView(generic.ListView):
                     self.form_class = PublisherForm
                     self.form_class.Meta.model = Publisher
 
-
             context = super().get_context_data(**kwargs)
 
             form = self.form_class
@@ -227,7 +229,6 @@ class CreateView(generic.ListView):
             context["form"] = form
 
             return context
-
 
 
 def add_image_to_db(image):
@@ -364,6 +365,7 @@ def sort_title(e):
     else:
         return e.title.lower()
 
+
 def sort_date(e):
     name = e.__class__.__name__
 
@@ -378,8 +380,10 @@ def sort_date(e):
     else:
         return timezone.make_aware(datetime(1970, 1, 1))
 
+
 def sort_id(e):
     return e.id
+
 
 def get_search_results(query, sortmethod):
     post = Post.objects.filter(Q(title__icontains=query) | Q(content__icontains=query))
@@ -404,7 +408,6 @@ def get_search_results(query, sortmethod):
         case "-id":
             query_list.sort(key=sort_id, reverse=True)
 
-
     return query_list
 
 
@@ -415,4 +418,3 @@ class SearchView(generic.ListView):
         query = self.request.GET.get("q")
 
         return get_search_results(query, self.request.GET.get("sort"))
-

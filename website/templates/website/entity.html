@@ -1,1 +1,36 @@
-<h4><a href="/">Home</a></h4>
+{% extends "website/base.html" %}
+
+{% block main %}
+    <h1>{{ entity.title }}</h1>
+    <p>Founded: {{ entity.foundingdate }}</p>
+    <p>{{ entity.description }}</p>
+    <br>
+    <h3>Related games:</h3>
+    {% if games %}
+            <ul>
+            <div class="list">
+                <li>
+                    {% for game in games.all %}
+                            <a href="{% url 'website:game' game.id %}">
+                                <div class="list-element">
+                                    {% if game.image %}
+                                        <img alt="a" src={{ post.image.binary_blob }}>
+                                    {% else %}
+                                        <img src="" alt="No image">
+                                    {% endif %}
+
+
+                                    <h3>{{ game.title }}</h3>
+                                    <div class="list-text">
+                                        {{ game.description }}
+                                    </div>
+
+                                </div>
+                            </a>
+                    {% endfor %}
+
+                </li>
+            </div>
+        </ul>
+    {% endif %}
+{% endblock %}

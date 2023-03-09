@@ -20,9 +20,9 @@ def get_url(value):
             return 'website:profile'
 
         case "Developer":
-            return 'website:entity'
+            return 'website:developer'
 
         case "Publisher":
-            return 'website:entity'
+            return 'website:publisher'
 
     return None
