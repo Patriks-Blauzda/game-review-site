@@ -31,16 +31,19 @@ class IndexView(generic.TemplateView):
     reverse_lazy('post')
 
     def get_context_data(self, **kwargs):
-        order = "title"
+        order = "-id"
         if self.request.GET.get("sort"):
             order = self.request.GET.get("sort")
-            if order[0] != '-':
-                order = Lower(order)
-            else:
-                order = Lower(order[1:]).desc()
+            if order != "-id" and order != "id":
+                if order[0] != '-':
+                    order = Lower(order)
+                else:
+                    order = Lower(order[1:]).desc()
 
         result = {
-            'games_list': Game.objects.order_by(order)
+            'games_list': Game.objects.order_by(order),
+            'latest_reviews': Post.objects.order_by("-id")[:5],
+            'latest_games': Game.objects.order_by("-id"),
         }
 
         return result
@@ -52,13 +55,14 @@ class GameView(generic.ListView):
     context_object_name = 'post_list'
 
     def get_context_data(self, **kwargs):
-        order = "title"
+        order = "-pubdate"
         if self.request.GET.get("sort"):
             order = self.request.GET.get("sort")
-            if order[0] != '-':
-                order = Lower(order)
-            else:
-                order = Lower(order[1:]).desc()
+            if order != "-id" and order != "id":
+                if order[0] != '-':
+                    order = Lower(order)
+                else:
+                    order = Lower(order[1:]).desc()
 
         context = {
             'post_list': Post.objects.filter(game=self.kwargs['pk']).order_by(order),

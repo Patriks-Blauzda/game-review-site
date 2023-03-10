@@ -5,6 +5,16 @@
     <p>{{ current_game.description }}</p>
     <p>Released: {{ current_game.releasedate }}</p>
 
+    <p>
+        {% if current_game.publisher %}
+            <a href="{% url 'website:developer' current_game.developer.id %}">Developer: {{ current_game.developer.title }}</a>
+        {% endif %}
+        <br>
+        {% if current_game.publisher %}
+            <a href="{% url 'website:publisher' current_game.publisher.id %}">Publisher: {{ current_game.publisher.title }}</a>
+        {% endif %}
+    </p>
+
     <a href="{% url 'website:create' 'post' current_game.id %}" style="font-size: 22px;">
         Write a review for {{ current_game.title }}
     </a>

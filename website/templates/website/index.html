@@ -1,6 +1,44 @@
 {% extends "website/base.html" %}
 
 
+{% block sidebar %}
+    <ul>
+        <div style="list-style-type: none;">
+            <h3 style="text-align:center; margin-right: 20%;">Recent posts</h3>
+            <li>
+
+                {% for post in latest_reviews.all %}
+                        <a href="{% url 'website:post' post.id %}">
+                            <div class="sidebar-list-element">
+
+                                <h5 style="margin-top: 0.5rem; margin-left: 5px;">{{ post.title }}</h5>
+                            </div>
+                        </a>
+                {% endfor %}
+
+            </li>
+        </div>
+    </ul>
+
+    <ul>
+        <div style="list-style-type: none; margin-top: 25%">
+            <h3 style="text-align:center; margin-right: 20%;">Recently added games</h3>
+            <li>
+
+                {% for game in latest_games.all %}
+                        <a href="{% url 'website:game' game.id %}">
+                            <div class="sidebar-list-element">
+
+                                <h5 style="margin-top: 0.5rem; margin-left: 5px;">{{ game.title }}</h5>
+                            </div>
+                        </a>
+                {% endfor %}
+
+            </li>
+        </div>
+    </ul>
+{% endblock %}
+
 {% block main %}
     {% if games_list %}
         <form method="get">
@@ -35,11 +73,15 @@
                                     <div class="list-text">
                                         {{ game.description }}
                                     </div>
-                                    <p>
-                                        Released: {{ game.releasedate }}
-                                        <br>
-                                        ID: {{ game.id }}
-                                    </p>
+                                        <p>
+                                            {% if game.publisher %}
+                                                Developer: <a href="{% url 'website:developer' game.developer.id %}">{{ game.developer.title }}</a>
+                                            {% endif %}
+                                            <br>
+                                            {% if game.publisher %}
+                                                Publisher: <a href="{% url 'website:publisher' game.publisher.id %}">{{ game.publisher.title }}</a>
+                                            {% endif %}
+                                        </p>
 
                                     {% if request.user.is_staff %}
                                         <a id="delete" href="{% url 'website:delete' 'game' game.id %}">delete</a>
