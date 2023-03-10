@@ -11,7 +11,7 @@
                         <a href="{% url 'website:post' post.id %}">
                             <div class="sidebar-list-element">
 
-                                <h5 style="margin-top: 0.5rem; margin-left: 5px;">{{ post.title }}</h5>
+                                <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis;">{{ post.title }}</h5>
                             </div>
                         </a>
                 {% endfor %}
@@ -29,7 +29,7 @@
                         <a href="{% url 'website:game' game.id %}">
                             <div class="sidebar-list-element">
 
-                                <h5 style="margin-top: 0.5rem; margin-left: 5px;">{{ game.title }}</h5>
+                                <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis;">{{ game.title }}</h5>
                             </div>
                         </a>
                 {% endfor %}

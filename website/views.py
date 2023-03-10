@@ -43,7 +43,7 @@ class IndexView(generic.TemplateView):
         result = {
             'games_list': Game.objects.order_by(order),
             'latest_reviews': Post.objects.order_by("-id")[:5],
-            'latest_games': Game.objects.order_by("-id"),
+            'latest_games': Game.objects.order_by("-id")[:5],
         }
 
         return result
