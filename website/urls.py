@@ -27,5 +27,9 @@ urlpatterns = [
     path('logout/', views.log_user_out, name='logout'),
 
     path('search/', views.SearchView.as_view(), name='search'),
-    # path('search/<str:query>', views.SearchView.as_view(), name='search'),
+
+    path('like/game/<int:game>/', login_required(views.like_game, login_url="/account/login/"), name='like_game'),
+    path('like/post/<int:post>/', login_required(views.like_post, login_url="/account/login/"), name='like_post'),
+
+    path('image/<int:pk>', views.get_image, name='get_image'),
 ]

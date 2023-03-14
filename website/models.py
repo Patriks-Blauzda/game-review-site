@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -35,6 +36,11 @@ class Publisher(models.Model):
         return self.title
 
 
+# class NewUser(models.Model):
+#     user = User
+#     image = models.ForeignKey(Image, on_delete=models.SET_NULL, blank=True, null=True)
+
+
 class Game(models.Model):
     title = models.CharField(max_length=60)
     description = models.TextField(blank=True, null=True)
@@ -44,6 +50,7 @@ class Game(models.Model):
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, blank=True, null=True)
 
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, blank=True, null=True)
+
 
     def __str__(self):
         return self.title
@@ -70,3 +77,11 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# if reviewing game, post = null, otherwise, not null
+class LikesUserMap(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True)
+

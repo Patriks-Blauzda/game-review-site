@@ -1,6 +1,8 @@
 from django import template
+from website.models import LikesUserMap
 
 register = template.Library()
+
 
 @register.filter
 def get_model_name(value):
@@ -26,3 +28,12 @@ def get_url(value):
             return 'website:publisher'
 
     return None
+
+
+@register.filter
+def count_likes(value):
+    match value.__class__.__name__:
+        case "Game":
+            return len(LikesUserMap.objects.filter(game=value))
+        case "Post":
+            return len(LikesUserMap.objects.filter(post=value))

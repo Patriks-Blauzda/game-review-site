@@ -21,6 +21,7 @@ from .models import Post
 from .models import Image
 from .models import Developer
 from .models import Publisher
+from .models import LikesUserMap
 
 from django.urls import reverse_lazy
 
@@ -236,12 +237,20 @@ class CreateView(generic.ListView):
 
 
 def add_image_to_db(image):
-    encoded_blob = "data:image/jpeg;base64," + base64.b64encode(image.read()).decode()
+    encoded_blob = base64.b64encode(image.read()).decode()
     row = Image.objects.create(binary_blob=encoded_blob)
 
     row.refresh_from_db()
 
     return row.id
+
+
+def get_image(request, **kwargs):
+    id = kwargs['pk']
+    image_data = Image.objects.get(id=id).binary_blob
+    image = base64.b64decode(image_data)
+    return http.HttpResponse(image, content_type="image/png")
+
 
 
 def delete(request, **kwargs):
@@ -430,3 +439,28 @@ class SearchView(generic.ListView):
         query = self.request.GET.get("q")
 
         return get_search_results(query, self.request.GET.get("sort"))
+
+
+# add a way to display likes to debug this
+def like_game(request, game):
+    if LikesUserMap.objects.filter(user=request.user, game=Game.objects.get(id=game)).exists():
+        obj = LikesUserMap.objects.get(user=request.user, game=Game.objects.get(id=game))
+        obj.delete()
+
+    else:
+        like = LikesUserMap(user=request.user, game=Game.objects.get(id=game))
+        like.save()
+
+    return http.HttpResponseRedirect("/")
+
+
+def like_post(request, post):
+    if LikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
+        obj = LikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post))
+        obj.delete()
+
+    else:
+        like = LikesUserMap(user=request.user, post=Post.objects.get(id=post))
+        like.save()
+
+    return http.HttpResponseRedirect(request.GET['next'])

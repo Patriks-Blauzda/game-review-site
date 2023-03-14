@@ -1,5 +1,5 @@
 {% extends "website/base.html" %}
-
+{% load web_extras %}
 
 {% block sidebar %}
     <ul>
@@ -64,7 +64,7 @@
                                 <div class="list-element">
 
                                     {% if game.image %}
-                                        <img alt="a" src={{ game.image.binary_blob }}>
+                                        <img src="{% url 'website:get_image' game.image.id %}">
                                     {% else %}
                                         <img src="" alt="No image">
                                     {% endif %}
@@ -86,6 +86,11 @@
                                     {% if request.user.is_staff %}
                                         <a id="delete" href="{% url 'website:delete' 'game' game.id %}">delete</a>
                                     {% endif %}
+
+                                    {% if request.user.is_authenticated %}
+                                        <a id="like" href="{% url 'website:like_game' game.id %}">like</a>
+                                    {% endif %}
+                                    <p>Likes: {{ game|count_likes }}</p>
                                 </div>
                             </a>
                     {% endfor %}
