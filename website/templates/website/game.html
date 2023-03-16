@@ -25,7 +25,7 @@
 {% block main %}
     {% if post_list %}
         <form method="get">
-            <select name="sort" id="sort" style="margin-left: 40px;">
+            <select name="sort" id="sort" style="margin-left: 60px;">
                 <option hidden="hidden" selected="selected" value="">Sort...</option>
 
                 <option value="title">A-Z</option>
@@ -45,7 +45,7 @@
                 <li>
                     {% for post in post_list.all %}
                             <a href="{% url 'website:post' post.id %}">
-                                <div class="list-element">
+                                <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
                                     {% if post.image %}
                                         <img alt="a" src={{ post.image.binary_blob }}>
                                     {% else %}
@@ -57,26 +57,34 @@
                                     <div class="list-text">
                                         {{ post.content }}
                                     </div>
-                                    <p>
-                                        Published: {{ post.pubdate }} |
-                                        ID: {{ post.id }}
-                                    </p>
 
-                                    {% if post.author %}
-                                        <a id="author" href="{% url 'website:profile' post.author.id %}">
-                                            Author: {{ post.author.username }}
-                                        </a>
-                                    {% endif %}
+                                    <p>
+                                        Published: {{ post.pubdate }}
+                                        <br>
+                                        {% if post.author %}
+                                            <a id="author" href="{% url 'website:profile' post.author.id %}">
+                                                Author: {{ post.author.username }}
+                                            </a>
+                                        {% endif %}
+                                    </p>
 
                                     {% if request.user.is_staff or request.user.username == post.author.username %}
                                         <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
                                     {% endif %}
 
-                                    {% if request.user.is_authenticated %}
-                                        <a id="like" href="{% url 'website:like_post' post.id %}?next=/game/{{ post.game.id }}">like</a>
-                                    {% endif %}
-                                    <p>Likes: {{ post|count_likes }}</p>
-                                </div>
+                                    <div class="like-dislike">
+                                        {% if request.user.is_authenticated %}
+                                            <a href="{% url 'website:like_post' post.id %}"
+                                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+
+                                            {{ post|count_likes }}
+
+                                            <a id="dislike" href="{% url 'website:dislike_post' post.id %}"
+                                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
+                                        {% else %}
+                                            ▲ {{ game|count_likes }} ▼
+                                        {% endif %}
+                                    </div>
 
                                 </div>
                             </a>

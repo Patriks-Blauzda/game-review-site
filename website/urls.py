@@ -31,5 +31,8 @@ urlpatterns = [
     path('like/game/<int:game>/', login_required(views.like_game, login_url="/account/login/"), name='like_game'),
     path('like/post/<int:post>/', login_required(views.like_post, login_url="/account/login/"), name='like_post'),
 
+    path('dislike/game/<int:game>/', login_required(views.dislike_game, login_url="/account/login/"), name='dislike_game'),
+    path('dislike/post/<int:post>/', login_required(views.dislike_post, login_url="/account/login/"), name='dislike_post'),
+
     path('image/<int:pk>', views.get_image, name='get_image'),
 ]

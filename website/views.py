@@ -22,6 +22,7 @@ from .models import Image
 from .models import Developer
 from .models import Publisher
 from .models import LikesUserMap
+from .models import DislikesUserMap
 
 from django.urls import reverse_lazy
 
@@ -103,8 +104,6 @@ class PublisherView(generic.DetailView):
 class PostForm(forms.ModelForm):
     name = "post"
     game_id = -1
-    title = forms.CharField(label="Title")
-    content = forms.CharField(label="Contents", widget=forms.Textarea)
 
     class Meta:
         model = Post
@@ -428,6 +427,8 @@ def get_search_results(query, sortmethod):
             query_list.sort(key=sort_type)
         case "-type":
             query_list.sort(key=sort_type, reverse=True)
+        case "-type":
+            query_list.sort(key=sort_type, reverse=True)
 
     return query_list
 
@@ -448,6 +449,9 @@ def like_game(request, game):
         obj.delete()
 
     else:
+        if DislikesUserMap.objects.filter(user=request.user, game=Game.objects.get(id=game)).exists():
+            DislikesUserMap.objects.get(user=request.user, game=Game.objects.get(id=game)).delete()
+
         like = LikesUserMap(user=request.user, game=Game.objects.get(id=game))
         like.save()
 
@@ -460,7 +464,39 @@ def like_post(request, post):
         obj.delete()
 
     else:
+        if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
+            DislikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post)).delete()
+
         like = LikesUserMap(user=request.user, post=Post.objects.get(id=post))
         like.save()
+
+    return http.HttpResponseRedirect(request.GET['next'])
+
+
+def dislike_game(request, game):
+    if DislikesUserMap.objects.filter(user=request.user, game=Game.objects.get(id=game)).exists():
+        obj = DislikesUserMap.objects.get(user=request.user, game=Game.objects.get(id=game))
+        obj.delete()
+
+    else:
+        if LikesUserMap.objects.filter(user=request.user, game=Game.objects.get(id=game)).exists():
+            LikesUserMap.objects.get(user=request.user, game=Game.objects.get(id=game)).delete()
+
+        dislike = DislikesUserMap(user=request.user, game=Game.objects.get(id=game))
+        dislike.save()
+
+    return http.HttpResponseRedirect("/")
+
+def dislike_post(request, post):
+    if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
+        obj = DislikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post))
+        obj.delete()
+
+    else:
+        if LikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
+            LikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post)).delete()
+
+        dislike = DislikesUserMap(user=request.user, post=Post.objects.get(id=post))
+        dislike.save()
 
     return http.HttpResponseRedirect(request.GET['next'])

@@ -70,7 +70,7 @@ body {
 
 
 .sidebar a:hover {
-    color: #818181;
+    color: #4d4d4d;
 }
 
 
@@ -85,6 +85,11 @@ body {
 }
 
 
+.sidebar-list-element:hover {
+    background-color: #f2f2f2;
+}
+
+
 .title {
     display: flex;
     justify-content: space-between;
@@ -92,16 +97,20 @@ body {
 
 
 .main {
-    margin-right: 25%;
-    margin-top: 4%;
-    padding: 4% 2%;
+    margin-right: 19%;
+    margin-left: 2%;
+    margin-top: 6%;
     font-size: 18px;
+}
+
+.main select {
 }
 
 
 
 .list {
     list-style-type: none;
+    margin-left: -7%;
 }
 
 
@@ -113,10 +122,8 @@ body {
 
 .list-element {
     position: relative;
-    border-style: solid;
-    border-width: 1px;
     margin-top: -0.7px;
-    padding: 5px 5px 5px 5px;
+    padding: 10px 5px 10px 15px;
     width: 100%;
     max-width: 100%;
     display: inline-block;
@@ -137,8 +144,25 @@ body {
     z-index: 1;
     float: left;
     padding: 5px 20px 5px 5px;
+    margin-right: 10px;
     height: 148px;
     width: 148px;
+}
+
+
+.like-dislike {
+    margin-left: 3.8%;
+}
+
+
+.like-dislike a {
+    transition: background-color 0.2s linear;
+}
+
+
+.like-dislike a:hover {
+    background-color: #d9d9d9;
+    border-radius: 4px;
 }
 
 
@@ -175,8 +199,6 @@ body {
 }
 
 #author {
-    display: inline-block;
-    position: absolute;
     bottom: 5px;
     left: 185px;
 }

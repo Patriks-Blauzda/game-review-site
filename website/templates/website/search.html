@@ -7,7 +7,7 @@
 
         <input type="hidden" name="q" value="{{ request.GET.q }}">
 
-        <select name="sort" id="sort" style="margin-left: 40px;">
+        <select name="sort" id="sort" style="margin-left: 60px;">
             <option hidden="hidden" selected="selected" value="">Sort...</option>
 
             <option value="title">A-Z</option>
@@ -27,7 +27,7 @@
             <li>
                 {% for result in object_list %}
                     <a href="{% url result|get_url result.id %}">
-                        <div class="list-element">
+                        <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
                             {% if result.image %}
                                 <img alt="a" src={{ result.image.binary_blob }}>
                             {% else %}

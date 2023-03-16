@@ -42,7 +42,7 @@
 {% block main %}
     {% if games_list %}
         <form method="get">
-            <select name="sort" id="sort" style="margin-left: 40px;">
+            <select name="sort" id="sort" style="margin-left: 60px;">
                 <option hidden="hidden" selected="selected" value="">Sort...</option>
 
                 <option value="title">A-Z</option>
@@ -57,11 +57,10 @@
 
         <ul>
             <div class="list">
-                <li>
 
                     {% for game in games_list.all %}
                             <a href="{% url 'website:game' game.id %}">
-                                <div class="list-element">
+                                <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
 
                                     {% if game.image %}
                                         <img src="{% url 'website:get_image' game.image.id %}">
@@ -76,6 +75,8 @@
                                         <p>
                                             {% if game.publisher %}
                                                 Developer: <a href="{% url 'website:developer' game.developer.id %}">{{ game.developer.title }}</a>
+                                            {% else %}
+                                                <br>
                                             {% endif %}
                                             <br>
                                             {% if game.publisher %}
@@ -87,10 +88,20 @@
                                         <a id="delete" href="{% url 'website:delete' 'game' game.id %}">delete</a>
                                     {% endif %}
 
-                                    {% if request.user.is_authenticated %}
-                                        <a id="like" href="{% url 'website:like_game' game.id %}">like</a>
-                                    {% endif %}
-                                    <p>Likes: {{ game|count_likes }}</p>
+                                    <div class="like-dislike">
+                                        {% if request.user.is_authenticated %}
+                                            <a href="{% url 'website:like_game' game.id %}"
+                                                style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+
+                                            {{ game|count_likes }}
+
+                                            <a id="dislike" href="{% url 'website:dislike_game' game.id %}"
+                                                style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
+                                        {% else %}
+                                            ▲ {{ game|count_likes }} ▼
+                                        {% endif %}
+                                    </div>
+
                                 </div>
                             </a>
                     {% endfor %}
