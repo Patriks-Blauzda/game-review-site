@@ -1,10 +1,15 @@
 {% extends "website/base.html" %}
+{% load web_extras %}
 
 {% block main %}
     <h1>{{ account.username }}</h1>
+    {% if userdata.image %}
+        <img src="{% url 'website:get_image' userdata.image.id %}" style="max-height: 248px; max-width: 248px; min-height: 248px; min-width: 248px;">
+    {% endif %}
     <p>Date joined: {{ account.date_joined }}</p>
     <p>Last online: {{ account.last_login }}</p>
     <br>
+    <p>User score: {{ account|count_user_score }}</p>
     <h3>User posts:</h3>
     {% if acc_posts %}
             <ul>
@@ -14,7 +19,7 @@
                             <a href="{% url 'website:post' post.id %}">
                                 <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
                                     {% if post.image %}
-                                        <img alt="a" src={{ post.image.binary_blob }}>
+                                        <img alt="a" src="{% url 'website:get_image' post.image.id %}">
                                     {% else %}
                                         <img src="" alt="No image">
                                     {% endif %}
@@ -28,6 +33,20 @@
                                     {% if request.user.is_staff or request.user.username == post.author.username %}
                                         <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
                                     {% endif %}
+
+                                    <div class="like-dislike">
+                                        {% if request.user.is_authenticated %}
+                                            <a href="{% url 'website:like_post' post.id %}?next=/profile/{{ account.id }}"
+                                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+
+                                            {{ post|count_likes }}
+
+                                            <a id="dislike" href="{% url 'website:dislike_post' post.id %}?next=/profile/{{ account.id }}"
+                                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
+                                        {% else %}
+                                            ▲ {{ post|count_likes }} ▼
+                                        {% endif %}
+                                    </div>
 
                                 </div>
                             </a>

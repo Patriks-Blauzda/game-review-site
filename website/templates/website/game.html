@@ -26,16 +26,15 @@
     {% if post_list %}
         <form method="get">
             <select name="sort" id="sort" style="margin-left: 60px;">
-                <option hidden="hidden" selected="selected" value="">Sort...</option>
-
-                <option value="title">A-Z</option>
-                <option value="-title">Z-A</option>
-                <option value="pubdate">Published Ascending</option>
-                <option value="-pubdate">Published Descending</option>
-                <option value="author">Author Ascending</option>
-                <option value="-author">Author Descending</option>
-                <option value="id">Added Ascending</option>
-                <option value="-id">Added Descending</option>
+                <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
+                <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
+                <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
+                <option value="pubdate" {% if sort == 'pubdate' %} selected {% endif %}>Published Ascending</option>
+                <option value="-pubdate" {% if sort == '-pubdate' %} selected {% endif %}>Published Descending</option>
+                <option value="author" {% if sort == 'author' %} selected {% endif %}>Author Ascending</option>
+                <option value="-author" {% if sort == '-author' %} selected {% endif %}>Author Descending</option>
+                <option value="id" {% if sort == 'id' %} selected {% endif %}>Added Ascending</option>
+                <option value="-id" {% if sort == '-id' %} selected {% endif %}>Added Descending</option>
             </select>
             <input type="submit" value="Sort">
         </form>
@@ -43,11 +42,11 @@
         <ul>
             <div class="list">
                 <li>
-                    {% for post in post_list.all %}
+                    {% for post in post_list %}
                             <a href="{% url 'website:post' post.id %}">
                                 <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
                                     {% if post.image %}
-                                        <img alt="a" src={{ post.image.binary_blob }}>
+                                        <img alt="a" src="{% url 'website:get_image' post.image.id %}">
                                     {% else %}
                                         <img src="" alt="No image">
                                     {% endif %}
@@ -74,12 +73,12 @@
 
                                     <div class="like-dislike">
                                         {% if request.user.is_authenticated %}
-                                            <a href="{% url 'website:like_post' post.id %}"
+                                            <a href="{% url 'website:like_post' post.id %}?next=/game/{{ post.game.id }}"
                                                 style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
 
                                             {{ post|count_likes }}
 
-                                            <a id="dislike" href="{% url 'website:dislike_post' post.id %}"
+                                            <a id="dislike" href="{% url 'website:dislike_post' post.id %}?next=/game/{{ post.game.id }}"
                                                 style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
                                         {% else %}
                                             ▲ {{ game|count_likes }} ▼

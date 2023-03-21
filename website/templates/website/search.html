@@ -8,21 +8,21 @@
         <input type="hidden" name="q" value="{{ request.GET.q }}">
 
         <select name="sort" id="sort" style="margin-left: 60px;">
-            <option hidden="hidden" selected="selected" value="">Sort...</option>
-
-            <option value="title">A-Z</option>
-            <option value="-title">Z-A</option>
-            <option value="date">Date Ascending</option>
-            <option value="-date">Date Descending</option>
-            <option value="id">Added Ascending</option>
-            <option value="-id">Added Descending</option>
-            <option value="type">Type Ascending</option>
-            <option value="-type">Type Descending</option>
+            <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
+            <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
+            <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
+            <option value="date" {% if sort == 'date' %} selected {% endif %}>Date Ascending</option>
+            <option value="-date" {% if sort == '-date' %} selected {% endif %}>Date Descending</option>
+            <option value="id" {% if sort == 'id' %} selected {% endif %}>Added Ascending</option>
+            <option value="-id" {% if sort == '-id' %} selected {% endif %}>Added Descending</option>
+            <option value="type" {% if sort == 'type' %} selected {% endif %}>Type Ascending</option>
+            <option value="-type" {% if sort == '-type' %} selected {% endif %}>Type Descending</option>
         </select>
         <input type="submit" value="Sort">
     </form>
 
     <ul>
+        <h1>{{ kwargs.sort }}</h1>
         <div class="list">
             <li>
                 {% for result in object_list %}
@@ -57,6 +57,36 @@
                                 <a id="author" href="{% url 'website:profile' result.author.id %}">
                                     Author: {{ result.author.username }}
                                 </a>
+                            {% endif %}
+
+                            {% if result|get_model_name == "Post" %}
+                                <div class="like-dislike">
+                                    {% if request.user.is_authenticated %}
+                                        <a href="{% url 'website:like_post' result.id %}?next=/search/?q={{ result.id }}"
+                                            style="{% if result|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+
+                                        {{ result|count_likes }}
+
+                                        <a id="dislike" href="{% url 'website:dislike_post' result.id %}?next=/search/?q={{ result.id }}"
+                                            style="{% if result|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
+                                    {% else %}
+                                        ▲ {{ result|count_likes }} ▼
+                                    {% endif %}
+                                </div>
+                            {% elif result|get_model_name == "Game" %}
+                                <div class="like-dislike">
+                                    {% if request.user.is_authenticated %}
+                                        <a href="{% url 'website:like_game' result.id %}?next=/search/?q={{ result.id }}"
+                                            style="{% if result|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+
+                                        {{ result|count_likes }}
+
+                                        <a id="dislike" href="{% url 'website:dislike_game' result.id %}?next=/search/?q={{ result.id }}"
+                                            style="{% if result|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
+                                    {% else %}
+                                        ▲ {{ result|count_likes }} ▼
+                                    {% endif %}
+                                </div>
                             {% endif %}
 
                         </div>

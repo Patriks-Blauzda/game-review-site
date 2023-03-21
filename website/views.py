@@ -23,32 +23,61 @@ from .models import Developer
 from .models import Publisher
 from .models import LikesUserMap
 from .models import DislikesUserMap
+from .models import UserData
 
 from django.urls import reverse_lazy
 
 
-# Create your views here.
+def sort_postcount(e):
+    if e.__class__.__name__ == "Game":
+        return len(Post.objects.filter(game=e))
+    return -1
+
+
+def sort_popularity(e):
+    match e.__class__.__name__:
+        case "Game":
+            return len(LikesUserMap.objects.filter(game=e)) - len(DislikesUserMap.objects.filter(game=e))
+        case "Post":
+            return len(LikesUserMap.objects.filter(post=e)) - len(DislikesUserMap.objects.filter(post=e))
+    return -9999999
+
+
+def get_order(sort):
+    if sort != "-id" and sort != "id":
+        if sort[0] != '-':
+            sort = Lower(sort)
+        else:
+            sort = Lower(sort[1:]).desc()
+
+    return sort
+
+
 class IndexView(generic.TemplateView):
     template_name = 'website/index.html'
     reverse_lazy('post')
 
     def get_context_data(self, **kwargs):
-        order = "-id"
-        if self.request.GET.get("sort"):
-            order = self.request.GET.get("sort")
-            if order != "-id" and order != "id":
-                if order[0] != '-':
-                    order = Lower(order)
-                else:
-                    order = Lower(order[1:]).desc()
+        games_list = list(Game.objects.all())
+        games_list.sort(key=sort_popularity, reverse=True)
 
-        result = {
-            'games_list': Game.objects.order_by(order),
+        sort = self.request.GET.get("sort")
+        if sort:
+            if sort == "postcount":
+                games_list = list(Game.objects.all())
+                games_list.sort(key=sort_postcount, reverse=True)
+            elif not "popularity":
+                order = get_order(sort)
+                games_list = Game.objects.order_by(order)
+        else:
+            sort = "popularity"
+
+        return {
+            'games_list': games_list,
             'latest_reviews': Post.objects.order_by("-id")[:5],
             'latest_games': Game.objects.order_by("-id")[:5],
+            'sort': sort,
         }
-
-        return result
 
 
 class GameView(generic.ListView):
@@ -57,21 +86,21 @@ class GameView(generic.ListView):
     context_object_name = 'post_list'
 
     def get_context_data(self, **kwargs):
-        order = "-pubdate"
-        if self.request.GET.get("sort"):
-            order = self.request.GET.get("sort")
-            if order != "-id" and order != "id":
-                if order[0] != '-':
-                    order = Lower(order)
-                else:
-                    order = Lower(order[1:]).desc()
+        post_list = list(Post.objects.filter(game=self.kwargs['pk']))
+        post_list.sort(key=sort_popularity, reverse=True)
 
-        context = {
-            'post_list': Post.objects.filter(game=self.kwargs['pk']).order_by(order),
+        sort = self.request.GET.get("sort")
+        if sort and sort != "popularity":
+                order = get_order(sort)
+                post_list = Post.objects.filter(game=self.kwargs['pk']).order_by(order)
+        else:
+            sort = "popularity"
+
+        return {
+            'post_list': post_list,
             'current_game': Game.objects.filter(id=self.kwargs['pk'])[0],
+            'sort': sort,
         }
-
-        return context
 
 
 class PostView(generic.DetailView):
@@ -85,7 +114,7 @@ class DeveloperView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         return {
-            'entity': Developer.objects.filter(id=self.kwargs['pk'])[0],
+            'entity': Developer.objects.get(id=self.kwargs['pk']),
             'games': Game.objects.filter(developer=self.kwargs['pk'])
         }
 
@@ -96,7 +125,7 @@ class PublisherView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         return {
-            'entity': Publisher.objects.filter(id=self.kwargs['pk'])[0],
+            'entity': Publisher.objects.get(id=self.kwargs['pk']),
             'games': Game.objects.filter(publisher=self.kwargs['pk'])
         }
 
@@ -315,6 +344,7 @@ class AccountView(generic.FormView):
                     pw = form.cleaned_data['password1']
 
                     auth = authenticate(request, username=un, password=pw)
+                    UserData.objects.create(user=User.objects.get(username=auth))
 
                     if auth:
                         login(request, auth)
@@ -326,7 +356,6 @@ class AccountView(generic.FormView):
                         return http.HttpResponseRedirect("/account/register/")
 
                 else:
-                    print(form.errors)
                     messages.error(request, form.errors)
                     return render(request, 'website/register.html', {'form': form})
 
@@ -364,10 +393,61 @@ class UserProfile(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = {
-            'account': User.objects.filter(id=self.kwargs['pk'])[0],
+            'account': User.objects.get(id=self.kwargs['pk']),
+            'userdata': UserData.objects.get(user=User.objects.get(id=self.kwargs['pk'])),
             'acc_posts': Post.objects.filter(author=self.kwargs['pk']),
         }
         return context
+
+
+class UserSettings(generic.FormView):
+    model = User
+    template_name = "website/usersettings.html"
+
+    def post(self, request, *args, **kwargs):
+        form = self.request.POST
+        files = self.request.FILES
+
+        userdata = UserData.objects.get(user=request.user)
+
+        new_username = form['new_username']
+        if new_username != '':
+            if not User.objects.filter(username=new_username).exists():
+                user = User.objects.get(username=request.user.username)
+                user.username = new_username
+                user.save()
+
+                messages.success(request, "Username updated")
+            else:
+                messages.error(request, "Username already exists")
+
+        if files:
+            profile_picture = files['picture']
+
+            if profile_picture:
+                if userdata.image:
+                    encoded_blob = base64.b64encode(profile_picture.read()).decode()
+                    userdata.image.binary_blob = encoded_blob
+
+                    userdata.image.save()
+                    userdata.save()
+
+                    userdata.image.refresh_from_db()
+
+                else:
+                    userdata.image = Image.objects.get(id=add_image_to_db(profile_picture))
+                    userdata.save()
+
+                messages.success(request, "Profile picture updated")
+
+
+        return http.HttpResponseRedirect("/account/settings/")
+
+    def get_context_data(self, **kwargs):
+        return {
+            'userdata': UserData.objects.get(user=self.request.user),
+        }
+
 
 
 def sort_title(e):
@@ -410,6 +490,9 @@ def get_search_results(query, sortmethod):
 
     query_list = list(chain(post, game, developer, publisher, user))
 
+    if not sortmethod:
+        sortmethod = "title"
+
     match sortmethod:
         case "title":
             query_list.sort(key=sort_title)
@@ -429,6 +512,10 @@ def get_search_results(query, sortmethod):
             query_list.sort(key=sort_type, reverse=True)
         case "-type":
             query_list.sort(key=sort_type, reverse=True)
+        case "popularity":
+            query_list.sort(key=sort_popularity, reverse=True)
+        case "postcount":
+            query_list.sort(key=sort_postcount, reverse=True)
 
     return query_list
 
@@ -437,9 +524,15 @@ class SearchView(generic.ListView):
     template_name = "website/search.html"
 
     def get_queryset(self):
+        return None
+
+    def get_context_data(self, **kwargs):
         query = self.request.GET.get("q")
 
-        return get_search_results(query, self.request.GET.get("sort"))
+        return {
+            'object_list': get_search_results(query, self.request.GET.get("sort")),
+            'sort': self.request.GET.get("sort")
+        }
 
 
 # add a way to display likes to debug this
@@ -455,7 +548,7 @@ def like_game(request, game):
         like = LikesUserMap(user=request.user, game=Game.objects.get(id=game))
         like.save()
 
-    return http.HttpResponseRedirect("/")
+    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 def like_post(request, post):
@@ -470,7 +563,7 @@ def like_post(request, post):
         like = LikesUserMap(user=request.user, post=Post.objects.get(id=post))
         like.save()
 
-    return http.HttpResponseRedirect(request.GET['next'])
+    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 def dislike_game(request, game):
@@ -485,7 +578,7 @@ def dislike_game(request, game):
         dislike = DislikesUserMap(user=request.user, game=Game.objects.get(id=game))
         dislike.save()
 
-    return http.HttpResponseRedirect("/")
+    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 def dislike_post(request, post):
     if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
@@ -499,4 +592,4 @@ def dislike_post(request, post):
         dislike = DislikesUserMap(user=request.user, post=Post.objects.get(id=post))
         dislike.save()
 
-    return http.HttpResponseRedirect(request.GET['next'])
+    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])

@@ -8,7 +8,7 @@ class Image(models.Model):
     alt_text = models.CharField(max_length=60, blank=True, null=True)
     width = models.PositiveSmallIntegerField(default=128)
     height = models.PositiveSmallIntegerField(default=128)
-    binary_blob = models.TextField(editable=False)
+    binary_blob = models.TextField(editable=True)
 
 
 class Developer(models.Model):
@@ -36,9 +36,9 @@ class Publisher(models.Model):
         return self.title
 
 
-# class NewUser(models.Model):
-#     user = User
-#     image = models.ForeignKey(Image, on_delete=models.SET_NULL, blank=True, null=True)
+class UserData(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Game(models.Model):

@@ -38,6 +38,7 @@ def count_likes(value):
             return len(LikesUserMap.objects.filter(game=value)) - len(DislikesUserMap.objects.filter(game=value))
         case "Post":
             return len(LikesUserMap.objects.filter(post=value)) - len(DislikesUserMap.objects.filter(post=value))
+    return 0
 
 
 @register.filter
@@ -47,6 +48,7 @@ def is_liked(value, user):
             return LikesUserMap.objects.filter(user=user, game=value).exists()
         case "Post":
             return LikesUserMap.objects.filter(user=user, post=value).exists()
+    return False
 
 
 @register.filter
@@ -56,3 +58,9 @@ def is_disliked(value, user):
             return DislikesUserMap.objects.filter(user=user, game=value).exists()
         case "Post":
             return DislikesUserMap.objects.filter(user=user, post=value).exists()
+    return False
+
+
+@register.filter
+def count_user_score(value):
+    return len(LikesUserMap.objects.filter(user=value)) - len(DislikesUserMap.objects.filter(user=value))

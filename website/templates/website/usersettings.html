@@ -1,0 +1,24 @@
+{% extends "website/base.html" %}
+
+{% block main %}
+    <h1>Account Settings for {{ request.user.username }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <button type="submit">Save</button>
+
+        <h3>Change Username</h3>
+
+        <input name="new_username" type="text">
+
+
+        <h3 style="margin-top: 45px;">Change Profile Picture</h3>
+
+        {% if userdata.image %}
+            <p>Current profile picture:</p>
+            <img src="{% url 'website:get_image' userdata.image.id %}" style="max-height: 248px; max-width: 248px; min-height: 248px; min-width: 248px;">
+        {% endif %}
+
+        <br>
+        <input type="file" id="Picture" name="picture">
+    </form>
+{% endblock %}
