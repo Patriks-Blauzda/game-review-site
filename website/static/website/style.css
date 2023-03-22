@@ -25,9 +25,11 @@ body {
 }
 
 
-.navbar form {
+.navbar form{
     float: right;
-    padding: 10px;
+    padding-right: 50px;
+    margin-top: 2.2%;
+    margin-bottom: -10%;
 }
 
 
@@ -101,9 +103,6 @@ body {
     margin-left: 2%;
     margin-top: 6%;
     font-size: 18px;
-}
-
-.main select {
 }
 
 

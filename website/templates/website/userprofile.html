@@ -6,11 +6,17 @@
     {% if userdata.image %}
         <img src="{% url 'website:get_image' userdata.image.id %}" style="max-height: 248px; max-width: 248px; min-height: 248px; min-width: 248px;">
     {% endif %}
-    <p>Date joined: {{ account.date_joined }}</p>
+
+    {% if userdata.description %}
+        <h4 style="margin-top: 45px;">Description</h4>
+        <p>{{ userdata.description|linebreaks }}</p>
+    {% endif %}
+
+    <p style="margin-top: 75px;">Date joined: {{ account.date_joined }}</p>
     <p>Last online: {{ account.last_login }}</p>
     <br>
     <p>User score: {{ account|count_user_score }}</p>
-    <h3>User posts:</h3>
+    <h3 style="margin-top: 75;">User posts:</h3>
     {% if acc_posts %}
             <ul>
             <div class="list">

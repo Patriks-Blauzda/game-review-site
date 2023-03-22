@@ -1,5 +1,11 @@
 {% extends "website/base.html" %}
 {% load web_extras %}
+{% load static %}
+
+{% block extra_scripts %}
+    <script src="{% static 'website/likedislike.js' %}"></script>
+{% endblock %}
+
 
 {% block sidebar %}
     <ul>
@@ -90,10 +96,12 @@
 
                                     <div class="like-dislike">
                                         {% if request.user.is_authenticated %}
-                                            <a href="{% url 'website:like_game' game.id %}"
-                                                style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+<!--                                            <a href="{% url 'website:like_game' game.id %}"-->
+<!--                                                style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>-->
 
-                                            {{ game|count_likes }}
+                                            <button id="like" type="button" onclick="like({{ game.id }}, '{{ game|is_liked:request.user }}');">▲</button>
+
+                                            <span id="score{{ game.id }}">{{ game|count_likes }}</span>
 
                                             <a id="dislike" href="{% url 'website:dislike_game' game.id %}"
                                                 style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>

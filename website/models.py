@@ -39,6 +39,7 @@ class Publisher(models.Model):
 class UserData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True, null=True)
+    description = models.TextField(default="")
 
 
 class Game(models.Model):

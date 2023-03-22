@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.hashers import check_password
 from django.forms.widgets import DateInput
 import base64
 from itertools import chain
@@ -353,7 +354,7 @@ class AccountView(generic.FormView):
                         return http.HttpResponseRedirect("/")
                     else:
                         messages.error(request, "There was a problem registering, please try again")
-                        return http.HttpResponseRedirect("/account/register/")
+                        return http.HttpResponseRedirect("/account/user/register/")
 
                 else:
                     messages.error(request, form.errors)
@@ -378,7 +379,7 @@ class AccountView(generic.FormView):
                             return http.HttpResponseRedirect("/")
                     else:
                         messages.error(request, "Login failed")
-                        return http.HttpResponseRedirect("/account/login/")
+                        return http.HttpResponseRedirect("/account/user/login/")
 
 
 def log_user_out(request):
@@ -412,14 +413,40 @@ class UserSettings(generic.FormView):
 
         new_username = form['new_username']
         if new_username != '':
-            if not User.objects.filter(username=new_username).exists():
-                user = User.objects.get(username=request.user.username)
-                user.username = new_username
-                user.save()
+            if check_password(form['username_password_auth'], request.user.password):
+                if not User.objects.filter(username=new_username).exists():
+                    user = request.user
+                    user.username = new_username
+                    user.save()
 
-                messages.success(request, "Username updated")
+                    messages.success(request, "Username updated")
+                else:
+                    messages.error(request, "Username already exists")
             else:
-                messages.error(request, "Username already exists")
+                messages.error(request, "Incorrect password")
+
+        old_password = form['old_password']
+        if old_password != '':
+            if check_password(old_password, request.user.password):
+                if form['new_password1'] == form['new_password2']:
+                    if form['new_password1'] != '':
+                        if not check_password(form['new_password1'], request.user.password):
+                            user = request.user
+                            user.set_password(form['new_password1'])
+                            user.save()
+
+                            authenticate(request, user=user.username, password=form['new_password1'])
+                            login(request, user)
+
+                            messages.success(request, "Password updated")
+                        else:
+                            messages.error(request, "New password cannot be the same")
+                    else:
+                        messages.error(request, "New password cannot be blank")
+                else:
+                    messages.error(request, "New password does not match")
+            else:
+                messages.error(request, "Incorrect password")
 
         if files:
             profile_picture = files['picture']
@@ -439,6 +466,14 @@ class UserSettings(generic.FormView):
                     userdata.save()
 
                 messages.success(request, "Profile picture updated")
+
+
+        description = form['description']
+        if description != userdata.description:
+            userdata.description = description
+            userdata.save()
+
+            messages.success(request, "Profile description updated")
 
 
         return http.HttpResponseRedirect("/account/settings/")
