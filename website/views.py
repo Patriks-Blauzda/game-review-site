@@ -63,12 +63,14 @@ class IndexView(generic.TemplateView):
         games_list.sort(key=sort_popularity, reverse=True)
 
         sort = self.request.GET.get("sort")
+
         if sort:
             if sort == "postcount":
                 games_list = list(Game.objects.all())
                 games_list.sort(key=sort_postcount, reverse=True)
-            elif not "popularity":
+            elif sort != "popularity":
                 order = get_order(sort)
+                print(order)
                 games_list = Game.objects.order_by(order)
         else:
             sort = "popularity"
@@ -283,23 +285,28 @@ def get_image(request, **kwargs):
 
 
 def delete(request, **kwargs):
-    match kwargs['object']:
-        case "game":
-            Game.objects.filter(id=kwargs['obj_id']).delete()
-            return http.HttpResponseRedirect("/")
+    if request.user.is_authenticated():
+        messages.success(request, "Successfully deleted")
+        match kwargs['object']:
+            case "game":
+                Game.objects.filter(id=kwargs['obj_id']).delete()
+                return http.HttpResponseRedirect("/")
 
-        case "post":
-            game_id = Post.objects.filter(id=kwargs['obj_id'])[0].game.id
-            Post.objects.filter(id=kwargs['obj_id']).delete()
-            return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            case "post":
+                game_id = Post.objects.filter(id=kwargs['obj_id'])[0].game.id
+                Post.objects.filter(id=kwargs['obj_id']).delete()
+                return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        case "developer":
-            Developer.objects.filter(id=kwargs['obj_id']).delete()
-            return http.HttpResponseRedirect("/")
+            case "developer":
+                Developer.objects.filter(id=kwargs['obj_id']).delete()
+                return http.HttpResponseRedirect("/")
 
-        case "publisher":
-            Publisher.objects.filter(id=kwargs['obj_id']).delete()
-            return http.HttpResponseRedirect("/")
+            case "publisher":
+                Publisher.objects.filter(id=kwargs['obj_id']).delete()
+                return http.HttpResponseRedirect("/")
+
+    messages.error(request, "Error occurred")
+    return http.HttpResponseRedirect("/")
 
 
 class RegisterForm(UserCreationForm):
@@ -583,8 +590,8 @@ def like_game(request, game):
         like = LikesUserMap(user=request.user, game=Game.objects.get(id=game))
         like.save()
 
-    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 def like_post(request, post):
     if LikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():

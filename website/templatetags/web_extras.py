@@ -33,6 +33,7 @@ def get_url(value):
 
 @register.filter
 def count_likes(value):
+    value.refresh_from_db()
     match value.__class__.__name__:
         case "Game":
             return len(LikesUserMap.objects.filter(game=value)) - len(DislikesUserMap.objects.filter(game=value))
@@ -43,6 +44,7 @@ def count_likes(value):
 
 @register.filter
 def is_liked(value, user):
+    value.refresh_from_db()
     match value.__class__.__name__:
         case "Game":
             return LikesUserMap.objects.filter(user=user, game=value).exists()
