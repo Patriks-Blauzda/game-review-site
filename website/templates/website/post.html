@@ -1,8 +1,32 @@
 {% extends "website/base.html" %}
+{% load web_extras %}
 
 {% block sidebar %}
     {% if post %}
         <a href="{% url 'website:game' post.game.id %}">{{ post.game.title }}</a>
+
+        <div class="like-dislike-sidebar">
+        {% if request.user.is_authenticated %}
+            <button
+                    id="like{{ post.game.id }}"
+                    type="button"
+                    onclick="like_game({{ post.game.id }});"
+                    style="{% if post.game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+            >▲</button>
+
+            <span id="score{{ post.game.id }}">{{ post.game|count_likes }}</span>
+
+            <button
+                    id="dislike{{ post.game.id }}"
+                    type="button"
+                    onclick="dislike_game({{ post.game.id }});"
+                    style="{% if post.game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+            >▼</button>
+        {% else %}
+            ▲ {{ current_game|count_likes }} ▼
+        {% endif %}
+    </div>
+
         <p>{{ post.game.description }}</p>
         <p>Released: {{ post.game.releasedate }}</p>
         <a href="{% url 'website:create' 'post' post.game.id %}">Write a review for {{ post.game.title }}</a>
@@ -21,6 +45,29 @@
             {% endif %}
         </p>
     </div>
+
+    <div class="like-dislike" style="margin: 0;">
+        {% if request.user.is_authenticated %}
+            <button
+                    id="like{{ post.id }}"
+                    type="button"
+                    onclick="like_post({{ post.id }});"
+                    style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+            >▲</button>
+
+            <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+
+            <button
+                    id="dislike{{ post.id }}"
+                    type="button"
+                    onclick="dislike_post({{ post.id }});"
+                    style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+            >▼</button>
+        {% else %}
+            ▲ {{ post|count_likes }} ▼
+        {% endif %}
+    </div>
+
     <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
 
     <p>{{ post.content|linebreaks }}</p>

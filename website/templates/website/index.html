@@ -8,16 +8,16 @@
 
 
 {% block sidebar %}
+    <p style="text-align:center; margin-right: 20%;">Recent posts</p>
     <ul>
         <div style="list-style-type: none;">
-            <h3 style="text-align:center; margin-right: 20%;">Recent posts</h3>
             <li>
 
                 {% for post in latest_reviews.all %}
                         <a href="{% url 'website:post' post.id %}">
                             <div class="sidebar-list-element">
 
-                                <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis;">{{ post.title }}</h5>
+                                <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;;">{{ post.title }}</h5>
                             </div>
                         </a>
                 {% endfor %}
@@ -26,23 +26,25 @@
         </div>
     </ul>
 
-    <ul>
-        <div style="list-style-type: none; margin-top: 25%">
-            <h3 style="text-align:center; margin-right: 20%;">Recently added games</h3>
-            <li>
+    <div>
+        <p style="text-align:center; margin-right: 20%;">Recently added games</p>
+        <ul>
+            <div style="list-style-type: none; margin-top: 25%">
+                <li>
 
-                {% for game in latest_games.all %}
-                        <a href="{% url 'website:game' game.id %}">
-                            <div class="sidebar-list-element">
+                    {% for game in latest_games.all %}
+                            <a href="{% url 'website:game' game.id %}">
+                                <div class="sidebar-list-element">
 
-                                <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis;">{{ game.title }}</h5>
-                            </div>
-                        </a>
-                {% endfor %}
+                                    <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis;">{{ game.title }}</h5>
+                                </div>
+                            </a>
+                    {% endfor %}
 
-            </li>
-        </div>
-    </ul>
+                </li>
+            </div>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block main %}
@@ -98,7 +100,7 @@
                                             <button
                                                     id="like{{ game.id }}"
                                                     type="button"
-                                                    onclick="like_game({{ game.id }}, {{ game|count_likes }}, '{{ game|is_liked:request.user }}');"
+                                                    onclick="like_game({{ game.id }});"
                                                     style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
                                             >▲</button>
 
@@ -107,7 +109,7 @@
                                             <button
                                                     id="dislike{{ game.id }}"
                                                     type="button"
-                                                    onclick="dislike_game({{ game.id }}, {{ game|count_likes }}, '{{ game|is_disliked:request.user }}');"
+                                                    onclick="dislike_game({{ game.id }});"
                                                     style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
                                             >▼</button>
                                         {% else %}

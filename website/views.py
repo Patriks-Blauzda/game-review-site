@@ -590,22 +590,11 @@ def like_game(request, game):
         like = LikesUserMap(user=request.user, game=Game.objects.get(id=game))
         like.save()
 
+    likes = len(LikesUserMap.objects.filter(game=Game.objects.get(id=game))) - len(
+        DislikesUserMap.objects.filter(game=Game.objects.get(id=game)))
+    has_liked = LikesUserMap.objects.filter(user=request.user, game=game).exists()
 
-    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
-
-def like_post(request, post):
-    if LikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
-        obj = LikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post))
-        obj.delete()
-
-    else:
-        if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
-            DislikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post)).delete()
-
-        like = LikesUserMap(user=request.user, post=Post.objects.get(id=post))
-        like.save()
-
-    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
+    return http.JsonResponse({"like": likes, "has_liked": has_liked}, status=201)
 
 
 def dislike_game(request, game):
@@ -620,7 +609,31 @@ def dislike_game(request, game):
         dislike = DislikesUserMap(user=request.user, game=Game.objects.get(id=game))
         dislike.save()
 
-    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
+    likes = len(LikesUserMap.objects.filter(game=Game.objects.get(id=game))) - len(
+        DislikesUserMap.objects.filter(game=Game.objects.get(id=game)))
+    has_disliked = DislikesUserMap.objects.filter(user=request.user, game=game).exists()
+
+    return http.JsonResponse({"like": likes, "has_disliked": has_disliked}, status=201)
+
+
+def like_post(request, post):
+    if LikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
+        obj = LikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post))
+        obj.delete()
+
+    else:
+        if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
+            DislikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post)).delete()
+
+        like = LikesUserMap(user=request.user, post=Post.objects.get(id=post))
+        like.save()
+
+    likes = len(LikesUserMap.objects.filter(post=Post.objects.get(id=post))) - len(
+        DislikesUserMap.objects.filter(post=Post.objects.get(id=post)))
+    has_liked = LikesUserMap.objects.filter(user=request.user, post=post).exists()
+
+    return http.JsonResponse({"like": likes, "has_liked": has_liked}, status=201)
+
 
 def dislike_post(request, post):
     if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
@@ -634,4 +647,8 @@ def dislike_post(request, post):
         dislike = DislikesUserMap(user=request.user, post=Post.objects.get(id=post))
         dislike.save()
 
-    return http.HttpResponseRedirect(request.META['HTTP_REFERER'])
+    likes = len(LikesUserMap.objects.filter(post=Post.objects.get(id=post))) - len(
+        DislikesUserMap.objects.filter(post=Post.objects.get(id=post)))
+    has_disliked = DislikesUserMap.objects.filter(user=request.user, post=post).exists()
+
+    return http.JsonResponse({"like": likes, "has_disliked": has_disliked}, status=201)
