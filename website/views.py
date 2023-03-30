@@ -173,8 +173,6 @@ class PublisherForm(forms.ModelForm):
 
 
 class CreateView(generic.ListView):
-    template_name = 'website/createredirect.html'
-
     def post(self, request, **kwargs):
         form = None
         image_id = None
@@ -283,30 +281,39 @@ def get_image(request, **kwargs):
     return http.HttpResponse(image, content_type="image/png")
 
 
-
 def delete(request, **kwargs):
-    if request.user.is_authenticated():
+    obj = kwargs['object']
+
+    if request.user.is_staff and obj != "post":
         messages.success(request, "Successfully deleted")
-        match kwargs['object']:
+
+        match obj:
             case "game":
                 Game.objects.filter(id=kwargs['obj_id']).delete()
                 return http.HttpResponseRedirect("/")
 
-            case "post":
-                game_id = Post.objects.filter(id=kwargs['obj_id'])[0].game.id
-                Post.objects.filter(id=kwargs['obj_id']).delete()
-                return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
             case "developer":
                 Developer.objects.filter(id=kwargs['obj_id']).delete()
-                return http.HttpResponseRedirect("/")
 
             case "publisher":
                 Publisher.objects.filter(id=kwargs['obj_id']).delete()
-                return http.HttpResponseRedirect("/")
 
-    messages.error(request, "Error occurred")
-    return http.HttpResponseRedirect("/")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    elif obj != "post":
+        messages.error(request, "User is not staff")
+
+    if obj == "post":
+        post = Post.objects.get(id=kwargs['obj_id'])
+        if request.user.is_staff or post.author == request.user:
+            messages.success(request, "Successfully deleted")
+            post.delete()
+        else:
+            messages.error(request, "User is not author or staff member")
+    else:
+        messages.error(request, "Invalid object")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class RegisterForm(UserCreationForm):

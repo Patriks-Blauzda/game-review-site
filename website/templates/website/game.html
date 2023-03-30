@@ -3,6 +3,11 @@
 
 {% block sidebar %}
     <a href="{% url 'website:game' current_game.id %}">{{ current_game.title }}</a>
+    {% if request.user.is_staff %}
+        <a href="{% url 'website:delete' 'game' current_game.id %}" style="  margin-top: -35px; margin-left: 220px;">
+            <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+        </a>
+    {% endif %}
     <div class="like-dislike-sidebar">
         {% if request.user.is_authenticated %}
             <button
@@ -47,7 +52,7 @@
 {% block main %}
     {% if post_list %}
         <form method="get">
-            <select name="sort" id="sort" style="margin-left: 60px;">
+            <select name="sort" id="sort" style="margin-left: 78%;">
                 <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
                 <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
                 <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
@@ -55,8 +60,6 @@
                 <option value="-pubdate" {% if sort == '-pubdate' %} selected {% endif %}>Published Descending</option>
                 <option value="author" {% if sort == 'author' %} selected {% endif %}>Author Ascending</option>
                 <option value="-author" {% if sort == '-author' %} selected {% endif %}>Author Descending</option>
-                <option value="id" {% if sort == 'id' %} selected {% endif %}>Added Ascending</option>
-                <option value="-id" {% if sort == '-id' %} selected {% endif %}>Added Descending</option>
             </select>
             <input type="submit" value="Sort">
         </form>
@@ -92,25 +95,27 @@
                                     </a>
 
                                     {% if request.user.is_staff or request.user.username == post.author.username %}
-                                        <a id="delete" href="{% url 'website:delete' 'post' post.id %}">delete</a>
+                                        <a id="delete" href="{% url 'website:delete' 'post' post.id %}">
+                                            <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                        </a>
                                     {% endif %}
 
                                     <div class="like-dislike">
                                         {% if request.user.is_authenticated %}
                                             <button
-                                                    id="like{{ post.id }}"
-                                                    type="button"
-                                                    onclick="like_post({{ post.id }});"
-                                                    style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                                id="like{{ post.id }}"
+                                                type="button"
+                                                onclick="like_post({{ post.id }});"
+                                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
                                             >▲</button>
 
                                             <span id="score{{ post.id }}">{{ post|count_likes }}</span>
 
                                             <button
-                                                    id="dislike{{ post.id }}"
-                                                    type="button"
-                                                    onclick="dislike_post({{ post.id }});"
-                                                    style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                                id="dislike{{ post.id }}"
+                                                type="button"
+                                                onclick="dislike_post({{ post.id }});"
+                                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
                                             >▼</button>
                                         {% else %}
                                             ▲ {{ post|count_likes }} ▼

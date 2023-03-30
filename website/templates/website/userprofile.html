@@ -42,13 +42,21 @@
 
                                     <div class="like-dislike">
                                         {% if request.user.is_authenticated %}
-                                            <a href="{% url 'website:like_post' post.id %}?next=/profile/{{ account.id }}"
-                                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}">▲</a>
+                                            <button
+                                                id="like{{ post.id }}"
+                                                type="button"
+                                                onclick="like_post({{ post.id }});"
+                                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                            >▲</button>
 
-                                            {{ post|count_likes }}
+                                            <span id="score{{ post.id }}">{{ post|count_likes }}</span>
 
-                                            <a id="dislike" href="{% url 'website:dislike_post' post.id %}?next=/profile/{{ account.id }}"
-                                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}">▼</a>
+                                            <button
+                                                id="dislike{{ post.id }}"
+                                                type="button"
+                                                onclick="dislike_post({{ post.id }});"
+                                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                            >▼</button>
                                         {% else %}
                                             ▲ {{ post|count_likes }} ▼
                                         {% endif %}

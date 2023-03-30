@@ -17,7 +17,6 @@ urlpatterns = [
 
     path('delete/<str:object>/<int:obj_id>/', views.delete, name='delete'),
 
-    path('create/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('create/<str:object>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('create/<str:object>/<int:game_id>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('create/<str:object>/<str:entity>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),

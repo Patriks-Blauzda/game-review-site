@@ -8,49 +8,37 @@
 
 
 {% block sidebar %}
-    <p style="text-align:center; margin-right: 20%;">Recent posts</p>
-    <ul>
-        <div style="list-style-type: none;">
+    <a style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
+    <ul class="sidebar-list">
+        {% for post in latest_reviews.all %}
             <li>
-
-                {% for post in latest_reviews.all %}
-                        <a href="{% url 'website:post' post.id %}">
-                            <div class="sidebar-list-element">
-
-                                <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;;">{{ post.title }}</h5>
-                            </div>
-                        </a>
-                {% endfor %}
-
+                <a href="{% url 'website:post' post.id %}">
+                    {{ post.title }}
+                </a>
             </li>
-        </div>
+        {% endfor %}
     </ul>
 
-    <div>
-        <p style="text-align:center; margin-right: 20%;">Recently added games</p>
-        <ul>
-            <div style="list-style-type: none; margin-top: 25%">
-                <li>
 
-                    {% for game in latest_games.all %}
-                            <a href="{% url 'website:game' game.id %}">
-                                <div class="sidebar-list-element">
-
-                                    <h5 style="margin-top: 0.5rem; margin-left: 5px; overflow: hidden; text-overflow: ellipsis;">{{ game.title }}</h5>
-                                </div>
-                            </a>
-                    {% endfor %}
-
-                </li>
-            </div>
-        </ul>
-    </div>
+    <a style="
+        text-align:center; font-weight: bold; margin-top: 60px; white-space: nowrap;
+        font-size: 22px;
+    ">Recently added games</a>
+    <ul class="sidebar-list">
+        {% for game in latest_games.all %}
+            <li>
+                <a href="{% url 'website:game' game.id %}">
+                    {{ game.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
 
 {% block main %}
     {% if games_list %}
         <form method="get">
-            <select name="sort" id="sort" style="margin-left: 60px;">
+            <select name="sort" id="sort" style="margin-left: 78%;">
                 <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
                 <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
                 <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Most Popular</option>
@@ -92,25 +80,27 @@
                                     </a>
 
                                     {% if request.user.is_staff %}
-                                        <a id="delete" href="{% url 'website:delete' 'game' game.id %}">delete</a>
+                                        <a id="delete" href="{% url 'website:delete' 'game' game.id %}">
+                                            <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                        </a>
                                     {% endif %}
 
                                     <div class="like-dislike">
                                         {% if request.user.is_authenticated %}
                                             <button
-                                                    id="like{{ game.id }}"
-                                                    type="button"
-                                                    onclick="like_game({{ game.id }});"
-                                                    style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                                id="like{{ game.id }}"
+                                                type="button"
+                                                onclick="like_game({{ game.id }});"
+                                                style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
                                             >▲</button>
 
                                             <span id="score{{ game.id }}">{{ game|count_likes }}</span>
 
                                             <button
-                                                    id="dislike{{ game.id }}"
-                                                    type="button"
-                                                    onclick="dislike_game({{ game.id }});"
-                                                    style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                                id="dislike{{ game.id }}"
+                                                type="button"
+                                                onclick="dislike_game({{ game.id }});"
+                                                style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
                                             >▼</button>
                                         {% else %}
                                             ▲ {{ game|count_likes }} ▼
