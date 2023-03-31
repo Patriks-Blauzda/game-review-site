@@ -11,48 +11,43 @@
 <body>
     {% block bodyfirst %}{% endblock %}
 
-    <nav>
-        <a href="/" style="font-size: 2.5vw; padding-left: 1%; padding-bottom: 1.1%;">Game Review Blog</a>
-
-        <ul>
-
-
-            <li><a style="cursor: default;">Create <i class="fa fa-pencil-square"></i></a>
-                <ul>
-                    <li><a href="{% url 'website:create' 'game' %}">Game</a></li>
-                    <li><a href="{% url 'website:create' 'entity' 'developer' %}">Developer</a></li>
-                    <li><a href="{% url 'website:create' 'entity' 'publisher' %}">Publisher</a></li>
-                </ul>
-            </li>
-
-            <li>
-                <a>Games <i class="fa fa-gamepad"></i></a>
-            </li>
-
-            {% if request.user.is_authenticated %}
-                <li><a href="{% url 'website:profile' request.user.id %}">{{ request.user.username }} <i class="fa fa-user-circle"></i></a>
-                    <ul>
-                        <li><a href="{% url 'website:account_settings' %}">Settings <i class="fa fa-cog"></i></a></li>
-                        <li><a href="{% url 'website:logout' %}">Log Out <i class="fa fa-sign-out"></i></a></li>
+    <header class="header">
+        <nav>
+            <a href="/" class="app-name">Game Review Blog</a>
+            <ul>
+                <li><a style="cursor: default;"><span>Create</span> <i class="fa fa-pencil-square"></i></a>
+                    <ul class="submenu">
+                        <li><a href="{% url 'website:create' 'game' %}">Game</a></li>
+                        <li><a href="{% url 'website:create' 'entity' 'developer' %}">Developer</a></li>
+                        <li><a href="{% url 'website:create' 'entity' 'publisher' %}">Publisher</a></li>
                     </ul>
                 </li>
 
-            {% else %}
-                <a href="{% url 'website:account' 'login' %}">Log In <i class="fa fa-sign-in"></i></a>
-                <a href="{% url 'website:account' 'register' %}">Register <i class="fa fa-user-plus"></i></a>
-            {% endif %}
+                <li>
+                    <a>Games <i class="fa fa-gamepad"></i></a>
+                </li>
 
+                {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'website:profile' request.user.id %}">{{ request.user.username }} <i class="fa fa-user-circle"></i></a>
+                        <ul class="submenu">
+                            <li><a href="{% url 'website:account_settings' %}">Settings <i class="fa fa-cog"></i></a></li>
+                            <li><a href="{% url 'website:logout' %}">Log Out <i class="fa fa-sign-out"></i></a></li>
+                        </ul>
+                    </li>
 
-        </ul>
-
+                {% else %}
+                    <a href="{% url 'website:account' 'login' %}">Log In <i class="fa fa-sign-in"></i></a>
+                    <a href="{% url 'website:account' 'register' %}">Register <i class="fa fa-user-plus"></i></a>
+                {% endif %}
+            </ul>
+        </nav>
         <div class="search">
             <form action="{% url 'website:search' %}" method="get" style="font-size: 0;">
                 <input name="q" type="text" placeholder="Search...">
                 <button class="btn-search"><i class="fa fa-search" style="color: #f2f2f2;"></i></button>
             </form>
         </div>
-
-    </nav>
+    </header>
 
     <div class="sidebar">
         {% block sidebar %}{% endblock %}
