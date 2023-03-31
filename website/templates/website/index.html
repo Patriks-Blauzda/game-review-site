@@ -8,7 +8,7 @@
 
 
 {% block sidebar %}
-    <a style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
+    <a href="{% url 'website:latest_posts' %}" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
     <ul class="sidebar-list">
         {% for post in latest_reviews.all %}
             <li>
@@ -20,7 +20,7 @@
     </ul>
 
 
-    <a style="
+    <a href="/?sort=-id" style="
         text-align:center; font-weight: bold; margin-top: 60px; white-space: nowrap;
         font-size: 22px;
     ">Recently added games</a>

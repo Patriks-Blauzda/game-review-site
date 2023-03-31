@@ -36,4 +36,6 @@ urlpatterns = [
     path('dislike/post/<int:post>/', login_required(views.dislike_post, login_url=login_path), name='dislike_post'),
 
     path('image/<int:pk>', views.get_image, name='get_image'),
+
+    path('posts/latest/', views.LatestPostView.as_view(), name='latest_posts')
 ]

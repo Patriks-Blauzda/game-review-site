@@ -659,3 +659,15 @@ def dislike_post(request, post):
     has_disliked = DislikesUserMap.objects.filter(user=request.user, post=post).exists()
 
     return http.JsonResponse({"like": likes, "has_disliked": has_disliked}, status=201)
+
+
+class LatestPostView(generic.ListView):
+    template_name = "website/latestposts.html"
+    model = Post
+
+    def get_context_data(self, **kwargs):
+        return {
+            'post_list': Post.objects.all().order_by("-id"),
+            'latest_reviews': Post.objects.order_by("-id")[:5],
+            'latest_games': Game.objects.order_by("-id")[:5],
+        }
