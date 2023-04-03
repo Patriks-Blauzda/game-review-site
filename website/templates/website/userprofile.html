@@ -1,10 +1,13 @@
 {% extends "website/base.html" %}
 {% load web_extras %}
+{% load static %}
 
 {% block main %}
     <h1>{{ account.username }}</h1>
     {% if userdata.image %}
         <img src="{% url 'website:get_image' userdata.image.id %}" style="max-height: 248px; max-width: 248px; min-height: 248px; min-width: 248px;">
+    {% else %}
+        <img src="{% static 'website/user_default_image.jpg' %}" alt="No image">
     {% endif %}
 
     {% if userdata.description %}
@@ -27,7 +30,7 @@
                                     {% if post.image %}
                                         <img alt="a" src="{% url 'website:get_image' post.image.id %}">
                                     {% else %}
-                                        <img src="" alt="No image">
+                                        <img src="{% static 'website/review_default_image.png' %}" alt="No image">
                                     {% endif %}
 
 

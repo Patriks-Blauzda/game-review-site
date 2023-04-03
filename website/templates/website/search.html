@@ -1,5 +1,6 @@
 {% extends "website/base.html" %}
 {% load web_extras %}
+{% load static %}
 
 {% block main %}
   {% if object_list %}
@@ -7,7 +8,7 @@
 
         <input type="hidden" name="q" value="{{ request.GET.q }}">
 
-        <select name="sort" id="sort" style="margin-left: 78%; position: absolute;">
+        <select name="sort" id="sort">
             <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
             <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
             <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
@@ -27,9 +28,21 @@
                     <a href="{% url result|get_url result.id %}">
                         <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
                             {% if result.image %}
-                                <img alt="a" src={{ result.image.binary_blob }}>
+                                <img alt="a" src="{% url 'website:get_image' result.image.id %}">
                             {% else %}
-                                <img src="" alt="No image">
+                                <img src="
+                                    {% if result|get_model_name == 'Game' %}
+                                        {% static 'website/game_default_image.png' %}
+                                    {% elif result|get_model_name == 'Post' %}
+                                        {% static 'website/review_default_image.png' %}
+                                    {% elif result|get_model_name == 'User' %}
+                                        {% static 'website/user_default_image.jpg' %}
+                                    {% elif result|get_model_name == 'Publisher' %}
+                                        {% static 'website/publisher_default_image.png' %}
+                                    {% elif result|get_model_name == 'Developer' %}
+                                        {% static 'website/developer_default_image.png' %}
+                                    {% endif %}
+                                " alt="No image">
                             {% endif %}
 
 
@@ -38,7 +51,7 @@
                                 {{ result.username }}
                             </h3>
 
-                            <h5 style="float: right; margin-top: -65px; margin-right: 5px;">{{ result|get_model_name }}</h5>
+                            <h5 style="float: right; margin-top: -25px; margin-right: 5px;">{{ result|get_model_name }}</h5>
 
                             <div class="list-text">
                                 {{ result.content }}

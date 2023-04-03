@@ -38,7 +38,7 @@
 {% block main %}
     {% if games_list %}
         <form method="get">
-            <select name="sort" id="sort" style="margin-left: 78%;">
+            <select name="sort" id="sort">
                 <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
                 <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
                 <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Most Popular</option>
@@ -59,7 +59,7 @@
                                     {% if game.image %}
                                         <img src="{% url 'website:get_image' game.image.id %}">
                                     {% else %}
-                                        <img src="" alt="No image">
+                                        <img src="{% static 'website/game_default_image.png' %}" alt="No image">
                                     {% endif %}
 
                                     <h3>{{ game.title }}</h3>

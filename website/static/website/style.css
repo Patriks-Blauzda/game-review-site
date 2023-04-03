@@ -4,6 +4,11 @@
     box-sizing: border-box;
 }
 
+img {
+    height: 148px;
+    width: 148px;
+}
+
 html {
     font-size: 15px;
 }
@@ -245,8 +250,6 @@ nav > ul > li:hover > ul > li > a {
     float: left;
     padding: 5px 20px 5px 5px;
     margin-right: 10px;
-    height: 148px;
-    width: 148px;
 }
 
 
@@ -326,4 +329,8 @@ nav > ul > li:hover > ul > li > a {
 #author {
     bottom: 5px;
     left: 185px;
+}
+
+#sort {
+    margin: 1% 0 1% 78%;
 }

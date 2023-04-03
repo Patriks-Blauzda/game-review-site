@@ -1,5 +1,6 @@
 {% extends "website/base.html" %}
 {% load web_extras %}
+{% load static %}
 
 {% block sidebar %}
     <a href="{% url 'website:game' current_game.id %}">{{ current_game.title }}</a>
@@ -73,7 +74,7 @@
                                     {% if post.image %}
                                         <img alt="a" src="{% url 'website:get_image' post.image.id %}">
                                     {% else %}
-                                        <img src="" alt="No image">
+                                        <img src="{% static 'website/review_default_image.png' %}" alt="No image">
                                     {% endif %}
 
 
