@@ -1,0 +1,92 @@
+{% extends "website/base.html" %}
+{% load web_extras %}
+{% load static %}
+
+{% block sidebar %}
+    <a href="#" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recently added developers</a>
+    <ul class="sidebar-list">
+        {% for developer in latest_devs.all %}
+            <li>
+                <a href="#">
+                    {{ developer.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+    <a href="#" style="
+        text-align:center; font-weight: bold; margin-top: 60px; white-space: nowrap;
+        font-size: 22px;
+    ">Recently added publishers</a>
+    <ul class="sidebar-list">
+        {% for publisher in latest_pubs.all %}
+            <li>
+                <a href="#">
+                    {{ publisher.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+
+{% block main %}
+    {% if content_list %}
+    <div class="sorting">
+            <form method="get">
+                <select name="sort" id="sort">
+                    <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
+                    <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
+                    <option value="gamecount" {% if sort == 'gamecount' %} selected {% endif %}>Most Games</option>
+                    <option value="foundingdate" {% if sort == 'foundingdate' %} selected {% endif %}>Founding Date Ascending</option>
+                    <option value="-foundingdate" {% if sort == '-foundingdate' %} selected {% endif %}>Founding Date Descending</option>
+                </select>
+                <input type="submit" id="sortbutton" value="Sort">
+            </form>
+    </div>
+
+        <ul>
+            <div class="list">
+                {% for entity in content_list %}
+                    <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                        <div class="list-element-main">
+                            <a href="
+                            {% if entity|get_model_name == 'Developer' %} {% url 'website:developer' entity.id %}
+                            {% elif entity|get_model_name == 'Publisher' %} {% url 'website:publisher' entity.id %}
+                            {% endif %}
+                            " style="width: 100%;">
+                                {% if entity.image %}
+                                    <img src="{% url 'website:get_image' entity.image.id %}">
+                                {% elif entity|get_model_name == 'Developer' %}
+                                    <img src="{% static 'website/developer_default_image.png' %}" alt="No image">
+                                {% elif entity|get_model_name == 'Publisher' %}
+                                    <img src="{% static 'website/publisher_default_image.png' %}" alt="No image">
+                                {% endif %}
+                                <div style="width: 85%;">
+                                    <h3>{{ entity.title }}</h3>
+                                    <div class="list-text">
+                                        {{ entity.description }}
+                                    </div>
+                                </div>
+                            </a>
+
+
+                            {% if request.user.is_staff %}
+                                <a id="delete" href="{% url 'website:delete' 'entity|get_model_name' entity.id %}">
+                                    <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                </a>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                {% endfor %}
+                </li>
+            </div>
+        </ul>
+
+    {% else %}
+        <p>No entities are available.</p>
+    {% endif %}
+
+{% endblock %}

@@ -1,5 +1,7 @@
 {% extends "website/base.html" %}
 
+{% block sidebar-params %} style="display: none;" {% endblock %}
+
 {% block main %}
     <h1>{{ entity.title }}</h1>
     <p>Founded: {{ entity.foundingdate }}</p>

@@ -12,8 +12,12 @@ urlpatterns = [
 
     path('post/<int:pk>/', views.PostView.as_view(), name='post'),
 
-    path('entity/developer/<int:pk>/', views.DeveloperView.as_view(), name='developer'),
-    path('entity/publisher/<int:pk>/', views.PublisherView.as_view(), name='publisher'),
+    path('games/', views.GamesListView.as_view(), name='games_list'),
+    path('posts/', views.PostsListView.as_view(), name='posts_list'),
+    path('entities/<str:entity>/', views.EntityView.as_view(), name='entities'),
+
+    path('developer/<int:pk>', views.DeveloperView.as_view(), name='developer'),
+    path('publisher/<int:pk>', views.PublisherView.as_view(), name='publisher'),
 
     path('delete/<str:object>/<int:obj_id>/', views.delete, name='delete'),
 
@@ -36,6 +40,4 @@ urlpatterns = [
     path('dislike/post/<int:post>/', login_required(views.dislike_post, login_url=login_path), name='dislike_post'),
 
     path('image/<int:pk>', views.get_image, name='get_image'),
-
-    path('posts/latest/', views.LatestPostView.as_view(), name='latest_posts')
 ]

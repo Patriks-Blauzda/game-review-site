@@ -1,0 +1,126 @@
+{% extends "website/base.html" %}
+{% load web_extras %}
+{% load static %}
+
+{% block extra_scripts %}
+    <script src="{% static 'website/likedislike.js' %}"></script>
+{% endblock %}
+
+
+{% block sidebar %}
+    <a href="{% url 'website:posts_list' %}" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
+    <ul class="sidebar-list">
+        {% for post in latest_reviews.all %}
+            <li>
+                <a href="{% url 'website:post' post.id %}">
+                    {{ post.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+    <a href="/?sort=-id" style="
+        text-align:center; font-weight: bold; margin-top: 60px; white-space: nowrap;
+        font-size: 22px;
+    ">Recently added games</a>
+    <ul class="sidebar-list">
+        {% for game in latest_games.all %}
+            <li>
+                <a href="{% url 'website:game' game.id %}">
+                    {{ game.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block main %}
+    {% if games_list %}
+        <div class="sorting">
+            <form method="get">
+                <select name="sort" id="sort">
+                    <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
+                    <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
+                    <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Most Popular</option>
+                    <option value="postcount" {% if sort == 'postcount' %} selected {% endif %}>Most Reviewed</option>
+                    <option value="releasedate" {% if sort == 'releasedate' %} selected {% endif %}>Release Date Ascending</option>
+                    <option value="-releasedate" {% if sort == '-releasedate' %} selected {% endif %}>Release Date Descending</option>
+                    <option value="id" {% if sort == 'id' %} selected {% endif %}>Added Ascending</option>
+                    <option value="-id" {% if sort == '-id' %} selected {% endif %}>Added Descending</option>
+                </select>
+                <input type="submit" id="sortbutton" value="Sort">
+            </form>
+        </div>
+
+        <ul>
+            <div class="list">
+                {% for game in games_list %}
+                    <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                        <div class="list-element-main">
+                            <a href="{% url 'website:game' game.id %}" style="width: 100%;">
+                                {% if game.image %}
+                                    <img src="{% url 'website:get_image' game.image.id %}">
+                                {% else %}
+                                    <img src="{% static 'website/game_default_image.png' %}" alt="No image">
+                                {% endif %}
+
+                                <h3>{{ game.title }}</h3>
+                                <div class="list-text">
+                                    {{ game.description }}
+                                </div>
+
+                                <div class="creators">
+                                    {% if game.publisher %}
+<!--                                        {% url 'website:developer' game.developer.id %}-->
+                                        Developer: {{ game.developer.title }}
+                                    {% else %}
+                                        <br>
+                                    {% endif %}
+                                    <br>
+                                    {% if game.publisher %}
+<!--                                        {% url 'website:publisher' game.publisher.id %}-->
+                                        Publisher: {{ game.publisher.title }}
+                                    {% endif %}
+                                </div>
+
+                            </a>
+                            {% if request.user.is_staff %}
+                                <a id="delete" href="{% url 'website:delete' 'game' game.id %}">
+                                    <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="like-dislike">
+                            {% if request.user.is_authenticated %}
+                                <button
+                                    id="like{{ game.id }}"
+                                    type="button"
+                                    onclick="like_game({{ game.id }});"
+                                    style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                >▲</button>
+
+                                <span id="score{{ game.id }}">{{ game|count_likes }}</span>
+
+                                <button
+                                    id="dislike{{ game.id }}"
+                                    type="button"
+                                    onclick="dislike_game({{ game.id }});"
+                                    style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                >▼</button>
+                            {% else %}
+                                ▲ {{ game|count_likes }} ▼
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </ul>
+
+    {% else %}
+        <p>No games are available.</p>
+    {% endif %}
+
+{% endblock %}

@@ -1,25 +1,54 @@
 {% extends "website/base.html" %}
 
+{% block sidebar %}
+	<a href="{% url 'website:game' game_id %}" style="
+	text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">
+		Recent posts</a>
+    <ul class="sidebar-list">
+        {% for post in latest_reviews.all %}
+            <li>
+                <a href="{% url 'website:post' post.id %}">
+                    {{ post.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+	<a href="{% url 'website:game' game_id %}" style="
+	text-align:center; font-weight: bold; margin-top: 60px; font-size: 22px;">
+		Recent posts from Self</a>
+    <ul class="sidebar-list">
+        {% for post in own_reviews.all %}
+            <li>
+                <a href="{% url 'website:post' post.id %}">
+                    {{ post.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
 {% block main %}
-	<form method="post" enctype="multipart/form-data">
-		{% csrf_token %}
+	<div id="padded-content">
+		<h1>Write a Review</h1>
 
-		<button type="submit">Submit</button>
-		<br>
+		<form method="post" enctype="multipart/form-data">
+			{% csrf_token %}
 
-		<p>
-			Thumbnail:
-			<input type="file" id="Thumbnail" name="file">
-		</p>
-
-		<p>{% for field in form %}
+			<button type="submit">Submit</button>
 			<br>
-			{{ field.label_tag }}
-			<br>
-			{{ field }}
-		{% endfor %}</p>
 
-	</form>
+			<p>
+				Thumbnail:
+				<input type="file" id="Thumbnail" name="file">
+			</p>
 
-<!--<div cols="40" rows="10" id="id_content" style="border: 1px solid black;" name="content" contenteditable="true">text<br></div>-->
+			<p>{% for field in form %}
+				<br>
+				{{ field.label_tag }}
+				<br>
+				{{ field }}
+			{% endfor %}</p>
+		</form>
+	</div>
 {% endblock %}

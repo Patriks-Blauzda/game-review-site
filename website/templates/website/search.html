@@ -4,21 +4,21 @@
 
 {% block main %}
   {% if object_list %}
-    <form method="get">
-
-        <input type="hidden" name="q" value="{{ request.GET.q }}">
-
-        <select name="sort" id="sort">
-            <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
-            <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
-            <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
-            <option value="date" {% if sort == 'date' %} selected {% endif %}>Date Ascending</option>
-            <option value="-date" {% if sort == '-date' %} selected {% endif %}>Date Descending</option>
-            <option value="type" {% if sort == 'type' %} selected {% endif %}>Type Ascending</option>
-            <option value="-type" {% if sort == '-type' %} selected {% endif %}>Type Descending</option>
-        </select>
-        <input type="submit" value="Sort">
-    </form>
+    <div class="sorting">
+        <form method="get">
+            <input type="hidden" name="q" value="{{ request.GET.q }}">
+            <select name="sort" id="sort">
+                <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
+                <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
+                <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
+                <option value="date" {% if sort == 'date' %} selected {% endif %}>Date Ascending</option>
+                <option value="-date" {% if sort == '-date' %} selected {% endif %}>Date Descending</option>
+                <option value="type" {% if sort == 'type' %} selected {% endif %}>Type Ascending</option>
+                <option value="-type" {% if sort == '-type' %} selected {% endif %}>Type Descending</option>
+            </select>
+            <input type="submit" value="Sort">
+        </form>
+    </div>
 
     <ul>
         <h1>{{ kwargs.sort }}</h1>
@@ -30,19 +30,19 @@
                             {% if result.image %}
                                 <img alt="a" src="{% url 'website:get_image' result.image.id %}">
                             {% else %}
-                                <img src="
+                                <img src=
                                     {% if result|get_model_name == 'Game' %}
-                                        {% static 'website/game_default_image.png' %}
+                                        "{% static 'website/game_default_image.png' %}"
                                     {% elif result|get_model_name == 'Post' %}
-                                        {% static 'website/review_default_image.png' %}
+                                        "{% static 'website/post_default_image.png' %}"
                                     {% elif result|get_model_name == 'User' %}
-                                        {% static 'website/user_default_image.jpg' %}
+                                        "{% static 'website/user_default_image.jpg' %}"
                                     {% elif result|get_model_name == 'Publisher' %}
-                                        {% static 'website/publisher_default_image.png' %}
+                                        "{% static 'website/publisher_default_image.png' %}"
                                     {% elif result|get_model_name == 'Developer' %}
-                                        {% static 'website/developer_default_image.png' %}
+                                        "{% static 'website/developer_default_image.png' %}"
                                     {% endif %}
-                                " alt="No image">
+                                alt="No image">
                             {% endif %}
 
 

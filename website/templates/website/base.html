@@ -15,21 +15,30 @@
         <nav>
             <a href="/" class="app-name">Game Review Blog</a>
             <ul>
-                <li><a style="cursor: default;"><span>Create</span> <i class="fa fa-pencil-square"></i></a>
+                <li>
+                    <a style="cursor: default;"><span>Create</span> <i class="fa fa-pencil-square"></i></a>
                     <ul class="submenu">
-                        <li><a href="{% url 'website:create' 'game' %}">Game</a></li>
-                        <li><a href="{% url 'website:create' 'entity' 'developer' %}">Developer</a></li>
-                        <li><a href="{% url 'website:create' 'entity' 'publisher' %}">Publisher</a></li>
+                        <li><a href="{% url 'website:create' 'game' %}">Game <i class="fa fa-gamepad"></i></a></li>
+                        <li><a href="{% url 'website:create' 'entity' 'developer' %}">Developer <i class="fa fa-desktop"></i></a></li>
+                        <li><a href="{% url 'website:create' 'entity' 'publisher' %}">Publisher <i class="fa fa-building-o"></i></a></li>
                     </ul>
                 </li>
 
                 <li>
-                    <a>Games <i class="fa fa-gamepad"></i></a>
+                    <a style="cursor: default;">Browse <i class="fa fa-ellipsis-v"></i></a>
+                    <ul class="submenu">
+                        <li><a href="{% url 'website:games_list' %}">Games <i class="fa fa-gamepad"></i></a></li>
+                        <li><a href="{% url 'website:posts_list' %}">Posts <i class="fa fa-align-left"></i></a></li>
+                        <li><a href="{% url 'website:entities' 'developers' %}">Developers <i class="fa fa-desktop"></i></a></li>
+                        <li><a href="{% url 'website:entities' 'publishers' %}">Publishers <i class="fa fa-building-o"></i></a></li>
+                    </ul>
                 </li>
 
                 {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'website:profile' request.user.id %}">{{ request.user.username }} <i class="fa fa-user-circle"></i></a>
+                    <li>
+                        <a style="cursor: default;">{{ request.user.username }} <i class="fa fa-user-circle"></i></a>
                         <ul class="submenu">
+                            <li><a href="{% url 'website:profile' request.user.id %}">Profile <i class="fa fa-id-card-o"></i></a></li>
                             <li><a href="{% url 'website:account_settings' %}">Settings <i class="fa fa-cog"></i></a></li>
                             <li><a href="{% url 'website:logout' %}">Log Out <i class="fa fa-sign-out"></i></a></li>
                         </ul>
@@ -49,24 +58,31 @@
         </div>
     </header>
 
-    <div class="sidebar">
+    <div class="sidebar" {% block sidebar-params %}{% endblock %}>
         {% block sidebar %}{% endblock %}
     </div>
 
-    <div class="main">
+    <div class="main-container">
+        <div class="main" {% block main-params %}{% endblock %}>
 
-        {% if messages %}
-            <div class="messages">
-            {% for message in messages %}
-                <div>
-                    {{ message }}
+            {% if messages %}
+                <div class="messages">
+                {% for message in messages %}
+                    <div>
+                        {{ message }}
+                    </div>
+                {% endfor %}
                 </div>
-            {% endfor %}
-            </div>
-        {% endif %}
+            {% endif %}
 
-        {% block main %}{% endblock %}
+            {% block main %}{% endblock %}
+        </div>
 
+
+        <footer>
+            <p>©2023 Game Review Site</p>
+            <p>Made with Django</p>
+        </footer>
     </div>
 
     {% block bodylast %}{% endblock %}

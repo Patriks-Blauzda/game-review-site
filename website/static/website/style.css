@@ -17,10 +17,17 @@ body {
     font-family: Arial;
 }
 
+.main-container {
+    position: relative;
+    min-height: 100vh;
+    padding-bottom: 8rem;
+}
+
 .header {
     display: flex;
     position: sticky;
     top: 0;
+    z-index: 999;
 }
 
 nav {
@@ -33,8 +40,10 @@ nav {
 .app-name {
     margin: 0;
     font-size: 2.5rem;
-    padding-right: 2.5%;
-    padding-left: 2.5%;
+    padding: 0 2.5% 0 2.5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 nav > ul {
@@ -53,7 +62,7 @@ nav a {
 
 nav > ul > li {
     display: flex;
-    padding: 0 25px;
+    padding: 0 35px;
 }
 
 nav > ul > li:hover, nav > a:hover {
@@ -216,6 +225,20 @@ nav > ul > li:hover > ul > li > a {
     font-size: 1.2rem;
 }
 
+.main form button {
+    margin-top: 1%;
+    margin-bottom: 1%;
+    padding: 8px;
+}
+
+.main form select {
+    margin: 0.8%;
+}
+
+.main form input {
+    margin-bottom: 1.5%;
+}
+
 .list {
     list-style-type: none;
 }
@@ -235,13 +258,14 @@ nav > ul > li:hover > ul > li > a {
     vertical-align: top;
 }
 
+
 .list-text {
     display: inline-block;
     padding-right: 10px;
+    padding-top: 10px;
     word-break: break-word;
     text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;
     max-width: 80%;
 }
 
@@ -252,9 +276,24 @@ nav > ul > li:hover > ul > li > a {
     margin-right: 10px;
 }
 
+.list-element-main {
+    display: flex;
+}
+
+.creators {
+    padding-top: 15px;
+}
+
+
 
 .like-dislike {
-    margin-left: 3.8%;
+    width: 10.8%;
+    display: flex;
+    justify-content: center;
+}
+
+.like-dislike span {
+    padding: 0 3%;
 }
 
 
@@ -294,6 +333,15 @@ nav > ul > li:hover > ul > li > a {
 }
 
 
+.post-body {
+
+}
+
+.post-body p {
+    padding-top: 2%;
+}
+
+
 #main-title {
     display: block;
     position: fixed;
@@ -319,11 +367,10 @@ nav > ul > li:hover > ul > li > a {
     display: contents;
 }
 
+
 #delete {
-    display: inline-block;
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
+    margin-left: auto;
+    margin-top: auto;
 }
 
 #author {
@@ -334,3 +381,78 @@ nav > ul > li:hover > ul > li > a {
 #sort {
     margin: 1% 0 1% 78%;
 }
+
+#padded-content {
+    padding: 2%;
+}
+
+#centered-header {
+    text-align: center;
+    padding: 15px;
+}
+
+#title {
+    display: flex;
+    justify-content: center;
+    padding: 2%;
+}
+
+footer {
+    padding: 1%;
+    margin: 1%;
+    border-left: 1px solid grey;
+    bottom: 0;
+    position: absolute;
+}
+
+
+.tabs {
+  overflow: hidden;
+  background-color: #ded3d3;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.tabs button {
+  background-color: inherit;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 0;
+  width: 50%;
+  font-size: 24px;
+}
+
+.tabs button:hover {
+  background-color: #d5c7c7;
+}
+
+.tabs button.active {
+  background-color: #c6aeae;
+}
+
+.sorting select {
+    outline: none;
+    padding: 5px 10px;
+    border: 1px solid #9c8888;
+    width: 15%;
+}
+
+.sorting select:hover {
+    background-color: #dbc6c6;
+}
+
+.sorting input {
+    outline: none;
+    padding: 5px 10px;
+    border: 1px solid #9c8888;
+}
+
+.sorting option {
+    background-color: #fff;
+}
+
+.sorting select:input {
+    background-color: #dbc6c6;
+}
+

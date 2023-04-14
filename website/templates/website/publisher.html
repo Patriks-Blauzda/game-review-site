@@ -1,0 +1,95 @@
+{% extends "website/base.html" %}
+{% load web_extras %}
+{% load static %}
+
+{% block main-params %} style="width: 100%;" {% endblock %}
+{% block sidebar-params %} style="display: none;" {% endblock %}
+
+{% block main %}
+    <div id="padded-content">
+        <h1>{{ publisher.title }}</h1>
+        {% if publisher.image %}
+            <img src="{% url 'website:get_image' publisher.image.id %}" style="max-height: 248px; max-width: 248px; min-height: 248px; min-width: 248px;">
+        {% else %}
+            <img src="{% static 'website/publisher_default_image.png' %}" alt="No image">
+        {% endif %}
+
+        <h4 style="margin-top: 45px;">Description</h4>
+        <p>{{ publisher.description }}</p>
+
+        <p style="margin-top: 75px;">Date founded: {{ publisher.foundingdate }}</p>
+
+        <h3 style="margin-top: 75;">Games Published:</h3>
+    </div>
+
+    {% if games_list %}
+            <ul>
+            <div class="list">
+                <li>
+                    {% for game in games_list %}
+                        <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                            <div class="list-element-main">
+                                <a href="{% url 'website:game' game.id %}" style="width: 100%;">
+                                    {% if game.image %}
+                                        <img src="{% url 'website:get_image' game.image.id %}">
+                                    {% else %}
+                                        <img src="{% static 'website/game_default_image.png' %}" alt="No image">
+                                    {% endif %}
+
+                                    <h3>{{ game.title }}</h3>
+                                    <div class="list-text">
+                                        {{ game.description }}
+                                    </div>
+
+                                    <div class="creators">
+                                        {% if game.publisher %}
+    <!--                                        {% url 'website:developer' game.developer.id %}-->
+                                            Developer: {{ game.developer.title }}
+                                        {% else %}
+                                            <br>
+                                        {% endif %}
+                                        <br>
+                                        {% if game.publisher %}
+    <!--                                        {% url 'website:publisher' game.publisher.id %}-->
+                                            Publisher: {{ game.publisher.title }}
+                                        {% endif %}
+                                    </div>
+
+                                </a>
+                                {% if request.user.is_staff %}
+                                    <a id="delete" href="{% url 'website:delete' 'game' game.id %}">
+                                        <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+
+
+                            <div class="like-dislike">
+                                {% if request.user.is_authenticated %}
+                                    <button
+                                        id="like{{ game.id }}"
+                                        type="button"
+                                        onclick="like_game({{ game.id }});"
+                                        style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                    >▲</button>
+
+                                    <span id="score{{ game.id }}">{{ game|count_likes }}</span>
+
+                                    <button
+                                        id="dislike{{ game.id }}"
+                                        type="button"
+                                        onclick="dislike_game({{ game.id }});"
+                                        style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                    >▼</button>
+                                {% else %}
+                                    ▲ {{ game|count_likes }} ▼
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </li>
+            </div>
+        </ul>
+    {% endif %}
+{% endblock %}

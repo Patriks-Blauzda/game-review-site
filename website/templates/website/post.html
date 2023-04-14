@@ -1,5 +1,6 @@
 {% extends "website/base.html" %}
 {% load web_extras %}
+{% load static %}
 
 {% block sidebar %}
     {% if post %}
@@ -40,51 +41,59 @@
 {% endblock %}
 
 {% block main %}
-    {% if post %}
-        <div class="title">
-            <h1>{{ post.title }}</h1>
-
-            {% if request.user.is_staff or request.user.username == post.author.username %}
-                <a id="delete" href="{% url 'website:delete' 'post' post.id %}">
-                    <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
-                </a>
-            {% endif %}
-
-            <p style="text-align: right; float: right; width: 33.333333%;">
-                {% if post.pubdate %}
-                    Posted: {{ post.pubdate }}
-                {% else %}
-                    Posted: Time unspecified
-                {% endif %}
-            </p>
-        </div>
-
-        <div class="like-dislike" style="margin: 0;">
-            {% if request.user.is_authenticated %}
-                <button
-                        id="like{{ post.id }}"
-                        type="button"
-                        onclick="like_post({{ post.id }});"
-                        style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
-                >▲</button>
-
-                <span id="score{{ post.id }}">{{ post|count_likes }}</span>
-
-                <button
-                        id="dislike{{ post.id }}"
-                        type="button"
-                        onclick="dislike_post({{ post.id }});"
-                        style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
-                >▼</button>
+    <div class="post-body" id="padded-content">
+        {% if post %}
+            {% if post.image %}
+                <img src="{% url 'website:get_image' post.image.id %}">
             {% else %}
-                ▲ {{ post|count_likes }} ▼
+                <img src="{% static 'website/post_default_image.png' %}" alt="No image">
             {% endif %}
-        </div>
 
-        <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
+            <div class="title">
+                <h1>{{ post.title }}</h1>
 
-        <p>{{ post.content|linebreaks }}</p>
-    {% else %}
-        <p>Nothing here</p>
-    {% endif %}
+                <div>
+                    {% if post.pubdate %}
+                        Posted: {{ post.pubdate }}
+                    {% else %}
+                        Posted: Time unspecified
+                    {% endif %}
+
+                    {% if request.user.is_staff or request.user.username == post.author.username %}
+                        <a href="{% url 'website:delete' 'post' post.id %}" style="margin-left: 2rem;">
+                            <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="like-dislike" style="margin: 0;">
+                {% if request.user.is_authenticated %}
+                    <button
+                            id="like{{ post.id }}"
+                            type="button"
+                            onclick="like_post({{ post.id }});"
+                            style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                    >▲</button>
+
+                    <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+
+                    <button
+                            id="dislike{{ post.id }}"
+                            type="button"
+                            onclick="dislike_post({{ post.id }});"
+                            style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                    >▼</button>
+                {% else %}
+                    ▲ {{ post|count_likes }} ▼
+                {% endif %}
+            </div>
+
+            <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
+
+            <p>{{ post.content|linebreaks }}</p>
+        {% else %}
+            <p>Nothing here</p>
+        {% endif %}
+    </div>
 {% endblock %}

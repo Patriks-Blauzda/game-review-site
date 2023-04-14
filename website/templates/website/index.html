@@ -2,13 +2,14 @@
 {% load web_extras %}
 {% load static %}
 
-{% block extra_scripts %}
-    <script src="{% static 'website/likedislike.js' %}"></script>
+
+{% block head %}
+    <script src="{% static 'website/javascript/tabs.js' %}"></script>
 {% endblock %}
 
 
 {% block sidebar %}
-    <a href="{% url 'website:latest_posts' %}" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
+    <a href="{% url 'website:posts_list' %}" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
     <ul class="sidebar-list">
         {% for post in latest_reviews.all %}
             <li>
@@ -20,7 +21,7 @@
     </ul>
 
 
-    <a href="/?sort=-id" style="
+    <a href="{% url 'website:games_list' %}?sort=-id" style="
         text-align:center; font-weight: bold; margin-top: 60px; white-space: nowrap;
         font-size: 22px;
     ">Recently added games</a>
@@ -36,26 +37,20 @@
 {% endblock %}
 
 {% block main %}
-    {% if games_list %}
-        <form method="get">
-            <select name="sort" id="sort">
-                <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
-                <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
-                <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Most Popular</option>
-                <option value="postcount" {% if sort == 'postcount' %} selected {% endif %}>Most Reviewed</option>
-                <option value="releasedate" {% if sort == 'releasedate' %} selected {% endif %}>Release Date Ascending</option>
-                <option value="-releasedate" {% if sort == '-releasedate' %} selected {% endif %}>Release Date Descending</option>
-                <option value="id" {% if sort == 'id' %} selected {% endif %}>Added Ascending</option>
-                <option value="-id" {% if sort == '-id' %} selected {% endif %}>Added Descending</option>
-            </select>
-            <input type="submit" value="Sort">
-        </form>
+    <div class="tabs">
+        <button class="tablinks active" onclick="switch_tabs(event, 'games')">Games</button>
+        <button class="tablinks" onclick="switch_tabs(event, 'posts')">Posts</button>
+    </div>
 
-        <ul>
-            <div class="list">
+    <div id="games" class="tabcontent">
+        {% if games_list %}
+            <h2 id="title">Popular Games</h2>
+            <ul>
+                <div class="list">
                     {% for game in games_list %}
-                                <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
-                                    <a href="{% url 'website:game' game.id %}">
+                        <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                            <div class="list-element-main">
+                                <a href="{% url 'website:game' game.id %}" style="width: 100%;">
                                     {% if game.image %}
                                         <img src="{% url 'website:get_image' game.image.id %}">
                                     {% else %}
@@ -66,54 +61,120 @@
                                     <div class="list-text">
                                         {{ game.description }}
                                     </div>
-                                        <p>
-                                            {% if game.publisher %}
-                                                Developer: <a href="{% url 'website:developer' game.developer.id %}">{{ game.developer.title }}</a>
-                                            {% else %}
-                                                <br>
-                                            {% endif %}
-                                            <br>
-                                            {% if game.publisher %}
-                                                Publisher: <a href="{% url 'website:publisher' game.publisher.id %}">{{ game.publisher.title }}</a>
-                                            {% endif %}
-                                        </p>
-                                    </a>
 
+                                    <div class="creators">
+                                        {% if game.publisher %}
+                                            Developer: {{ game.developer.title }}
+                                        {% else %}
+                                            <br>
+                                        {% endif %}
+                                        <br>
+                                        {% if game.publisher %}
+                                            Publisher: {{ game.publisher.title }}
+                                        {% endif %}
+                                    </div>
+
+                                </a>
+                                {% if request.user.is_staff %}
+                                    <a id="delete" href="{% url 'website:delete' 'game' game.id %}">
+                                        <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+
+
+                            <div class="like-dislike">
+                                {% if request.user.is_authenticated %}
+                                    <button
+                                        id="like{{ game.id }}"
+                                        type="button"
+                                        onclick="like_game({{ game.id }});"
+                                        style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                    >▲</button>
+
+                                    <span id="score{{ game.id }}">{{ game|count_likes }}</span>
+
+                                    <button
+                                        id="dislike{{ game.id }}"
+                                        type="button"
+                                        onclick="dislike_game({{ game.id }});"
+                                        style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                    >▼</button>
+                                {% else %}
+                                    ▲ {{ game|count_likes }} ▼
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </ul>
+        {% else %}
+            <p>None found</p>
+        {% endif %}
+        <a href="{% url 'website:games_list' %}?sort=popularity">More...</a>
+    </div>
+
+
+    <div id="posts" class="tabcontent" style="display: none;">
+        {% if post_list %}
+            <h2 id="title">Popular Posts</h2>
+            <ul>
+                <div class="list">
+                    <li>
+                        {% for post in post_list %}
+                            <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                                <div class="list-element-main">
+                                    <a href="{% url 'website:post' post.id %}" style="width: 100%;">
+                                        {% if post.image %}
+                                            <img src="{% url 'website:get_image' post.image.id %}">
+                                        {% else %}
+                                            <img src="{% static 'website/post_default_image.png' %}" alt="No image">
+                                        {% endif %}
+
+                                        <h3>{{ post.title }}</h3>
+                                        <div class="list-text">
+                                            {{ post.description }}
+                                        </div>
+
+                                    </a>
                                     {% if request.user.is_staff %}
-                                        <a id="delete" href="{% url 'website:delete' 'game' game.id %}">
+                                        <a id="delete" href="{% url 'website:delete' 'post' post.id %}">
                                             <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
                                         </a>
                                     {% endif %}
-
-                                    <div class="like-dislike">
-                                        {% if request.user.is_authenticated %}
-                                            <button
-                                                id="like{{ game.id }}"
-                                                type="button"
-                                                onclick="like_game({{ game.id }});"
-                                                style="{% if game|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
-                                            >▲</button>
-
-                                            <span id="score{{ game.id }}">{{ game|count_likes }}</span>
-
-                                            <button
-                                                id="dislike{{ game.id }}"
-                                                type="button"
-                                                onclick="dislike_game({{ game.id }});"
-                                                style="{% if game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
-                                            >▼</button>
-                                        {% else %}
-                                            ▲ {{ game|count_likes }} ▼
-                                        {% endif %}
-                                    </div>
                                 </div>
-                    {% endfor %}
-                </li>
-            </div>
-        </ul>
 
-    {% else %}
-        <p>No games are available.</p>
-    {% endif %}
+
+                                <div class="like-dislike">
+                                    {% if request.user.is_authenticated %}
+                                        <button
+                                            id="like{{ post.id }}"
+                                            type="button"
+                                            onclick="like_post({{ post.id }});"
+                                            style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                        >▲</button>
+
+                                        <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+
+                                        <button
+                                            id="dislike{{ post.id }}"
+                                            type="button"
+                                            onclick="dislike_post({{ post.id }});"
+                                            style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                        >▼</button>
+                                    {% else %}
+                                        ▲ {{ post|count_likes }} ▼
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </li>
+                </div>
+            </ul>
+        {% else %}
+            <p>None found</p>
+        {% endif %}
+        <a href="{% url 'website:posts_list' %}?sort=popularity">More...</a>
+    </div>
 
 {% endblock %}

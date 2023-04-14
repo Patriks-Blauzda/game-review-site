@@ -35,6 +35,15 @@ def sort_postcount(e):
     return -1
 
 
+def sort_gamecount(e):
+    match e.__class__.__name__:
+        case "Developer":
+            return len(Game.objects.filter(developer=e))
+        case "Publisher":
+            return len(Game.objects.filter(publisher=e))
+    return -1
+
+
 def sort_popularity(e):
     match e.__class__.__name__:
         case "Game":
@@ -59,27 +68,18 @@ class IndexView(generic.TemplateView):
     reverse_lazy('post')
 
     def get_context_data(self, **kwargs):
-        games_list = list(Game.objects.all())
+        games_list = list(Game.objects.all()[:5])
         games_list.sort(key=sort_popularity, reverse=True)
 
-        sort = self.request.GET.get("sort")
+        post_list = list(Post.objects.all()[:5])
+        post_list.sort(key=sort_popularity, reverse=True)
 
-        if sort:
-            if sort == "postcount":
-                games_list = list(Game.objects.all())
-                games_list.sort(key=sort_postcount, reverse=True)
-            elif sort != "popularity":
-                order = get_order(sort)
-                print(order)
-                games_list = Game.objects.order_by(order)
-        else:
-            sort = "popularity"
 
         return {
             'games_list': games_list,
+            'post_list': post_list,
             'latest_reviews': Post.objects.order_by("-id")[:5],
             'latest_games': Game.objects.order_by("-id")[:5],
-            'sort': sort,
         }
 
 
@@ -94,10 +94,11 @@ class GameView(generic.ListView):
 
         sort = self.request.GET.get("sort")
         if sort and sort != "popularity":
-                order = get_order(sort)
-                post_list = Post.objects.filter(game=self.kwargs['pk']).order_by(order)
+            order = get_order(sort)
+            post_list = Post.objects.filter(game=self.kwargs['pk']).order_by(order)
         else:
             sort = "popularity"
+
 
         return {
             'post_list': post_list,
@@ -111,25 +112,100 @@ class PostView(generic.DetailView):
     template_name = 'website/post.html'
 
 
+class GamesListView(generic.TemplateView):
+    template_name = 'website/gameslist.html'
+    reverse_lazy('post')
+
+    def get_context_data(self, **kwargs):
+        games_list = list(Game.objects.all())
+        games_list.sort(key=sort_popularity, reverse=True)
+
+        sort = self.request.GET.get("sort")
+
+        if sort:
+            if sort == "postcount":
+                games_list = list(Game.objects.all())
+                games_list.sort(key=sort_postcount, reverse=True)
+            elif sort != "popularity":
+                order = get_order(sort)
+                games_list = Game.objects.order_by(order)
+        else:
+            sort = "popularity"
+
+        return {
+            'games_list': games_list,
+            'latest_reviews': Post.objects.order_by("-id")[:5],
+            'latest_games': Game.objects.order_by("-id")[:5],
+            'sort': sort,
+        }
+
+
+class EntityView(generic.ListView):
+    template_name = 'website/entityview.html'
+    model = Developer
+
+    def get_context_data(self, **kwargs):
+        if self.kwargs['entity'] == "developers":
+            dev_list = list(Developer.objects.all())
+            dev_list.sort(key=sort_popularity, reverse=True)
+
+            sort = self.request.GET.get("sort")
+
+            if sort:
+                if sort == "gamecount":
+                    dev_list = list(Developer.objects.all())
+                    dev_list.sort(key=sort_gamecount, reverse=True)
+                else:
+                    order = get_order(sort)
+                    dev_list = Developer.objects.order_by(order)
+
+            return {
+                'content_list': dev_list,
+                'latest_devs': Developer.objects.order_by("-id")[:5],
+                'latest_pubs': Publisher.objects.order_by("-id")[:5],
+                'sort': sort,
+            }
+        elif self.kwargs['entity'] == "publishers":
+            pub_list = list(Publisher.objects.all())
+            pub_list.sort(key=sort_popularity, reverse=True)
+
+            sort = self.request.GET.get("sort")
+
+            if sort:
+                if sort == "gamecount":
+                    pub_list = list(Publisher.objects.all())
+                    pub_list.sort(key=sort_gamecount, reverse=True)
+                elif sort != "popularity":
+                    order = get_order(sort)
+                    pub_list = Publisher.objects.order_by(order)
+
+            return {
+                'content_list': pub_list,
+                'latest_devs': Developer.objects.order_by("-id")[:5],
+                'latest_pubs': Publisher.objects.order_by("-id")[:5],
+                'sort': sort,
+            }
+
+
 class DeveloperView(generic.DetailView):
     model = Developer
-    template_name = 'website/entity.html'
+    template_name = 'website/developer.html'
 
     def get_context_data(self, **kwargs):
         return {
-            'entity': Developer.objects.get(id=self.kwargs['pk']),
-            'games': Game.objects.filter(developer=self.kwargs['pk'])
+            'developer': Developer.objects.get(id=self.kwargs['pk']),
+            'games_list': Game.objects.filter(publisher=self.kwargs['pk'])
         }
 
 
 class PublisherView(generic.DetailView):
     model = Publisher
-    template_name = 'website/entity.html'
+    template_name = 'website/publisher.html'
 
     def get_context_data(self, **kwargs):
         return {
-            'entity': Publisher.objects.get(id=self.kwargs['pk']),
-            'games': Game.objects.filter(publisher=self.kwargs['pk'])
+            'publisher': Publisher.objects.get(id=self.kwargs['pk']),
+            'games_list': Game.objects.filter(publisher=Publisher.objects.get(id=self.kwargs['pk']))
         }
 
 
@@ -236,14 +312,26 @@ class CreateView(generic.ListView):
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
 
     def get_context_data(self, **kwargs):
+        sidebar_list = {}
+
         if self.kwargs:
             if self.kwargs['object'] == "game":
                 self.template_name = 'website/creategame.html'
                 self.form_class = GameForm
 
+                sidebar_list = {
+                    'latest_games': Game.objects.all().order_by("-id")[:10]
+                }
+
             elif self.kwargs['object'] == "post":
                 self.template_name = 'website/createpost.html'
                 self.form_class = PostForm
+
+                sidebar_list = {
+                    'latest_reviews': Post.objects.filter(game=self.kwargs['game_id']).order_by("-id")[:5],
+                    'own_reviews': Post.objects.filter(game=self.kwargs['game_id'], author=self.request.user).order_by("-id")[:5],
+                    'game_id': self.kwargs['game_id']
+                }
 
             if self.kwargs['object'] == "entity":
                 self.template_name = 'website/createdevpub.html'
@@ -256,11 +344,18 @@ class CreateView(generic.ListView):
                     self.form_class = PublisherForm
                     self.form_class.Meta.model = Publisher
 
+                sidebar_list = {
+                    'latest_devs': Developer.objects.all().order_by("-id")[:5],
+                    'latest_pubs': Publisher.objects.all().order_by("-id")[:5]
+                }
+
             context = super().get_context_data(**kwargs)
 
             form = self.form_class
 
             context["form"] = form
+
+            context = context | sidebar_list
 
             return context
 
@@ -287,7 +382,7 @@ def delete(request, **kwargs):
     if request.user.is_staff and obj != "post":
         messages.success(request, "Successfully deleted")
 
-        match obj:
+        match obj.lower():
             case "game":
                 Game.objects.filter(id=kwargs['obj_id']).delete()
                 return http.HttpResponseRedirect("/")
@@ -425,76 +520,89 @@ class UserSettings(generic.FormView):
 
         userdata = UserData.objects.get(user=request.user)
 
-        new_username = form['new_username']
-        if new_username != '':
-            if check_password(form['username_password_auth'], request.user.password):
-                if not User.objects.filter(username=new_username).exists():
-                    user = request.user
-                    user.username = new_username
-                    user.save()
+        if form['tab'] == "account":
+            new_username = form['new_username']
+            if new_username != '':
+                if check_password(form['username_password_auth'], request.user.password):
+                    if not User.objects.filter(username=new_username).exists():
+                        user = request.user
+                        user.username = new_username
+                        user.save()
 
-                    messages.success(request, "Username updated")
-                else:
-                    messages.error(request, "Username already exists")
-            else:
-                messages.error(request, "Incorrect password")
-
-        old_password = form['old_password']
-        if old_password != '':
-            if check_password(old_password, request.user.password):
-                if form['new_password1'] == form['new_password2']:
-                    if form['new_password1'] != '':
-                        if not check_password(form['new_password1'], request.user.password):
-                            user = request.user
-                            user.set_password(form['new_password1'])
-                            user.save()
-
-                            authenticate(request, user=user.username, password=form['new_password1'])
-                            login(request, user)
-
-                            messages.success(request, "Password updated")
-                        else:
-                            messages.error(request, "New password cannot be the same")
+                        messages.success(request, "Username updated")
                     else:
-                        messages.error(request, "New password cannot be blank")
+                        messages.error(request, "Username already exists")
                 else:
-                    messages.error(request, "New password does not match")
-            else:
-                messages.error(request, "Incorrect password")
+                    messages.error(request, "Incorrect password")
 
-        if files:
-            profile_picture = files['picture']
+            return http.HttpResponseRedirect("?tab=account")
 
-            if profile_picture:
-                if userdata.image:
-                    encoded_blob = base64.b64encode(profile_picture.read()).decode()
-                    userdata.image.binary_blob = encoded_blob
 
-                    userdata.image.save()
-                    userdata.save()
 
-                    userdata.image.refresh_from_db()
+            old_password = form['old_password']
+            if old_password != '':
+                if check_password(old_password, request.user.password):
+                    if form['new_password1'] == form['new_password2']:
+                        if form['new_password1'] != '':
+                            if not check_password(form['new_password1'], request.user.password):
+                                user = request.user
+                                user.set_password(form['new_password1'])
+                                user.save()
 
+                                authenticate(request, user=user.username, password=form['new_password1'])
+                                login(request, user)
+
+                                messages.success(request, "Password updated")
+                            else:
+                                messages.error(request, "New password cannot be the same")
+                        else:
+                            messages.error(request, "New password cannot be blank")
+                    else:
+                        messages.error(request, "New password does not match")
                 else:
-                    userdata.image = Image.objects.get(id=add_image_to_db(profile_picture))
-                    userdata.save()
+                    messages.error(request, "Incorrect password")
 
-                messages.success(request, "Profile picture updated")
+        if form['tab'] == "profile":
+            if files:
+                profile_picture = files['picture']
+
+                if profile_picture:
+                    if userdata.image:
+                        encoded_blob = base64.b64encode(profile_picture.read()).decode()
+                        userdata.image.binary_blob = encoded_blob
+
+                        userdata.image.save()
+                        userdata.save()
+
+                        userdata.image.refresh_from_db()
+
+                    else:
+                        userdata.image = Image.objects.get(id=add_image_to_db(profile_picture))
+                        userdata.save()
+
+                    messages.success(request, "Profile picture updated")
+
+            description = form['description']
+            if description != userdata.description:
+                userdata.description = description
+                userdata.save()
+
+                messages.success(request, "Profile description updated")
+
+            return http.HttpResponseRedirect("?tab=profile")
 
 
-        description = form['description']
-        if description != userdata.description:
-            userdata.description = description
-            userdata.save()
-
-            messages.success(request, "Profile description updated")
-
-
-        return http.HttpResponseRedirect("/account/settings/")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
     def get_context_data(self, **kwargs):
+        tab = self.request.GET.get("tab")
+
+        if not tab:
+            tab = "profile"
+
         return {
             'userdata': UserData.objects.get(user=self.request.user),
+            'tab': tab,
         }
 
 
@@ -661,13 +769,24 @@ def dislike_post(request, post):
     return http.JsonResponse({"like": likes, "has_disliked": has_disliked}, status=201)
 
 
-class LatestPostView(generic.ListView):
-    template_name = "website/latestposts.html"
+class PostsListView(generic.ListView):
+    template_name = "website/postslist.html"
     model = Post
 
     def get_context_data(self, **kwargs):
+        post_list = list(Post.objects.all())
+        post_list.sort(key=sort_popularity, reverse=True)
+
+        sort = self.request.GET.get("sort")
+        if sort and sort != "popularity":
+            order = get_order(sort)
+            post_list = Post.objects.all().order_by(order)
+        else:
+            sort = "popularity"
+
         return {
-            'post_list': Post.objects.all().order_by("-id"),
+            'post_list': post_list,
             'latest_reviews': Post.objects.order_by("-id")[:5],
             'latest_games': Game.objects.order_by("-id")[:5],
+            'sort': sort,
         }

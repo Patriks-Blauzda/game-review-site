@@ -4,7 +4,7 @@
 
 
 {% block sidebar %}
-    <a href="{% url 'website:latest_posts' %}" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
+    <a href="{% url 'website:posts_list' %}" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Recent posts</a>
     <ul class="sidebar-list">
         {% for post in latest_reviews.all %}
             <li>
@@ -35,6 +35,21 @@
 {% block main %}
     {% if post_list %}
 
+        <div class="sorting">
+            <form method="get">
+                <select name="sort" id="sort" style="margin-left: 78%;">
+                    <option value="title" {% if sort == 'title' %} selected {% endif %}>A-Z</option>
+                    <option value="-title" {% if sort == '-title' %} selected {% endif %}>Z-A</option>
+                    <option value="popularity" {% if sort == 'popularity' %} selected {% endif %}>Popularity</option>
+                    <option value="pubdate" {% if sort == 'pubdate' %} selected {% endif %}>Published Ascending</option>
+                    <option value="-pubdate" {% if sort == '-pubdate' %} selected {% endif %}>Published Descending</option>
+                    <option value="author" {% if sort == 'author' %} selected {% endif %}>Author Ascending</option>
+                    <option value="-author" {% if sort == '-author' %} selected {% endif %}>Author Descending</option>
+                </select>
+                <input type="submit" value="Sort">
+            </form>
+        </div>
+
        <ul>
             <div class="list">
                 <li>
@@ -44,7 +59,7 @@
                                     {% if post.image %}
                                         <img alt="a" src="{% url 'website:get_image' post.image.id %}">
                                     {% else %}
-                                        <img src="" alt="No image">
+                                        <img src="{% static 'website/post_default_image.png' %}" alt="No image">
                                     {% endif %}
 
 
