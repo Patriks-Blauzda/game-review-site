@@ -29,15 +29,11 @@
 {% endblock %}
 
 {% block main %}
-	<div id="padded-content">
+	<div class="createform" id="padded-content">
 		<h1>Write a Review</h1>
 
 		<form method="post" enctype="multipart/form-data">
 			{% csrf_token %}
-
-			<button type="submit">Submit</button>
-			<br>
-
 			<p>
 				Thumbnail:
 				<input type="file" id="Thumbnail" name="file">
@@ -49,6 +45,8 @@
 				<br>
 				{{ field }}
 			{% endfor %}</p>
+
+			<button type="submit">Submit</button>
 		</form>
 	</div>
 {% endblock %}

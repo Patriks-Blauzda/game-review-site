@@ -342,6 +342,18 @@ nav > ul > li:hover > ul > li > a {
 }
 
 
+.createform p {
+    padding-top: 10px;
+}
+
+.createform select, button, input, textarea {
+    border-radius: 0;
+    outline: none;
+    border: solid 1px #a29b9b;
+    padding: 3px;
+}
+
+
 #main-title {
     display: block;
     position: fixed;
@@ -430,6 +442,26 @@ footer {
 .tabs button.active {
   background-color: #c6aeae;
 }
+
+
+.smallbuttonlink {
+    text-decoration: none;
+    color: black;
+}
+
+
+.reviewbutton {
+    font-size: 22px;
+    border: solid #a29b9b 1px;
+    margin: 10px 16px;
+    padding: 5px;
+    background-color: #d2c8c8;
+}
+
+.reviewbutton:hover {
+    background-color: #f2ebeb;
+}
+
 
 .sorting select {
     outline: none;

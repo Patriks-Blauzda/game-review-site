@@ -111,7 +111,7 @@
         {% else %}
             <p>None found</p>
         {% endif %}
-        <a href="{% url 'website:games_list' %}?sort=popularity">More...</a>
+        <a class="smallbuttonlink" href="{% url 'website:games_list' %}?sort=popularity">More...</a>
     </div>
 
 
@@ -174,7 +174,7 @@
         {% else %}
             <p>None found</p>
         {% endif %}
-        <a href="{% url 'website:posts_list' %}?sort=popularity">More...</a>
+        <a class="smallbuttonlink" href="{% url 'website:posts_list' %}?sort=popularity">More...</a>
     </div>
 
 {% endblock %}
