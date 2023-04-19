@@ -44,8 +44,8 @@
         {% endif %}
     </p>
 
-    <a class="reviewbutton" href="{% url 'website:create' 'post' current_game.id %}" style="font-size: 22px;">
-        Write a review for {{ current_game.title }}
+    <a class="reviewbutton" href="{% url 'website:create' 'post' current_game.id %}">
+        Write a review <i class="fa fa-align-left"></i>
     </a>
 {% endblock %}
 

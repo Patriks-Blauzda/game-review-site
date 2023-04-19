@@ -17,6 +17,12 @@ body {
     font-family: Arial;
 }
 
+.messages {
+    padding: 15px;
+    background-color: #f9eabe;
+    border-bottom: solid 3px #d9c49d;
+}
+
 .main-container {
     position: relative;
     min-height: 100vh;
@@ -73,6 +79,7 @@ nav > ul > li > a {
     display: flex;
     align-items: center;
     gap: 10px;
+    white-space: nowrap;
 }
 
 nav ul ul {
@@ -260,13 +267,16 @@ nav > ul > li:hover > ul > li > a {
 
 
 .list-text {
-    display: inline-block;
     padding-right: 10px;
     padding-top: 10px;
     word-break: break-word;
-    text-overflow: ellipsis;
-    overflow: hidden;
     max-width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-break: anywhere;
 }
 
 .list-element img {
@@ -445,8 +455,20 @@ footer {
 
 
 .smallbuttonlink {
+    padding-left: 15px;
+    padding-top: 25px;
+}
+
+.smallbuttonlink a {
     text-decoration: none;
     color: black;
+    padding: 5px;
+    background-color: #ded3d3;
+    border-radius: 4px;
+}
+
+.smallbuttonlink a:hover {
+    background-color: #f2f2f2;
 }
 
 
@@ -456,6 +478,9 @@ footer {
     margin: 10px 16px;
     padding: 5px;
     background-color: #d2c8c8;
+    width: max-content;
+    padding: 5px 10px !important;
+    font-size: 24px;
 }
 
 .reviewbutton:hover {

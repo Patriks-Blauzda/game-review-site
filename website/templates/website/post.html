@@ -36,7 +36,9 @@
 
         <p>{{ post.game.description }}</p>
         <p>Released: {{ post.game.releasedate }}</p>
-        <a class="reviewbutton" href="{% url 'website:create' 'post' post.game.id %}">Write a review for {{ post.game.title }}</a>
+        <a class="reviewbutton" href="{% url 'website:create' 'post' post.game.id %}">
+            Write a review <i class="fa fa-align-left"></i>
+        </a>
     {% endif %}
 {% endblock %}
 

@@ -68,10 +68,10 @@ class IndexView(generic.TemplateView):
     reverse_lazy('post')
 
     def get_context_data(self, **kwargs):
-        games_list = list(Game.objects.all()[:5])
+        games_list = list(Game.objects.all()[:10])
         games_list.sort(key=sort_popularity, reverse=True)
 
-        post_list = list(Post.objects.all()[:5])
+        post_list = list(Post.objects.all()[:10])
         post_list.sort(key=sort_popularity, reverse=True)
 
 
@@ -403,6 +403,7 @@ def delete(request, **kwargs):
         if request.user.is_staff or post.author == request.user:
             messages.success(request, "Successfully deleted")
             post.delete()
+            return http.HttpResponseRedirect("/game/" + str(post.game.id))
         else:
             messages.error(request, "User is not author or staff member")
     else:

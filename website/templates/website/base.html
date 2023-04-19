@@ -45,8 +45,12 @@
                     </li>
 
                 {% else %}
-                    <a href="{% url 'website:account' 'login' %}">Log In <i class="fa fa-sign-in"></i></a>
-                    <a href="{% url 'website:account' 'register' %}">Register <i class="fa fa-user-plus"></i></a>
+                    <li>
+                        <a href="{% url 'website:account' 'login' %}">Log In <i class="fa fa-sign-in"></i></a>
+                    </li>
+                    <li>
+                        <a href="{% url 'website:account' 'register' %}">Register <i class="fa fa-user-plus"></i></a>
+                    </li>
                 {% endif %}
             </ul>
         </nav>
