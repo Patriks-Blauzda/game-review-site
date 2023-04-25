@@ -364,6 +364,13 @@ nav > ul > li:hover > ul > li > a {
 }
 
 
+.textbox > div {
+    border: solid 1px black;
+    outline: none;
+    height: 30%;
+}
+
+
 #main-title {
     display: block;
     position: fixed;

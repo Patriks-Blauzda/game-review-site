@@ -1,4 +1,11 @@
 {% extends "website/base.html" %}
+{% load static %}
+
+
+{% block head %}
+	<script src="{% static 'website/javascript/bbcode.js' %}"></script>
+{% endblock %}
+
 
 {% block sidebar %}
 	<a href="{% url 'website:game' game_id %}" style="
@@ -40,13 +47,24 @@
 			</p>
 
 			<p>
-				{% for field in form %}
-					<br>
-					{{ field.label_tag }}
-					<br>
-					{{ field }}
-				{% endfor %}
+				<h4>{{ form.title.label_tag }}</h2>
+				{{ form.title }}
 			</p>
+
+			<p>
+				<h4>{{ form.content.label_tag }}</h4>
+				<div>
+					<button type="button" onclick="stylize('b')"><b>bold</b></button>
+					<button type="button" onclick="stylize('i')"><i>italics</i></button>
+					<button type="button" onclick="stylize('strike')"><strike>strikethrough</strike></button>
+					<button type="button" onclick="stylize('u')"><u>underline</u></button>
+					<button type="button">link</button>
+				</div>
+			</p>
+
+			<div class="textbox">
+				<div id="contentbox" contenteditable="True"></div>
+			</div>
 
 			<button type="submit">Submit</button>
 		</form>
