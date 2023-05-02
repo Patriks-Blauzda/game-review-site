@@ -363,6 +363,13 @@ nav > ul > li:hover > ul > li > a {
     padding: 3px;
 }
 
+.textbox {
+
+}
+
+.textbox textarea {
+
+}
 
 .textbox > div {
     border: solid 1px black;
@@ -381,7 +388,7 @@ nav > ul > li:hover > ul > li > a {
     left: 0;
 }
 
-#id_content  {
+.createform#id_content  {
     width: 80%;
     height: 50%;
     resize: none;
@@ -520,3 +527,8 @@ footer {
     background-color: #dbc6c6;
 }
 
+
+.comments-list input {
+    width: 30%;
+    height: 140px;
+}

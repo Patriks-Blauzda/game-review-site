@@ -94,6 +94,24 @@
             <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
 
             <p>{{ post.content|linebreaks }}</p>
+            <div class="comments-list">
+                <h2>Comments</h2>
+
+                <p>Write a comment</p>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{form.content}}
+                    <br>
+                    <button type="submit">Post</button>
+                </form>
+
+                {% for comment in comments %}
+                    <div class="comment">
+
+                    </div>
+                {% endfor %}
+            </div>
+
         {% else %}
             <p>Nothing here</p>
         {% endif %}

@@ -3,7 +3,8 @@
 
 
 {% block head %}
-	<script src="{% static 'website/javascript/bbcode.js' %}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+	<script src="{% static 'website/javascript/textformatting.js' %}"></script>
 {% endblock %}
 
 
@@ -54,16 +55,19 @@
 			<p>
 				<h4>{{ form.content.label_tag }}</h4>
 				<div>
-					<button type="button" onclick="stylize('b')"><b>bold</b></button>
-					<button type="button" onclick="stylize('i')"><i>italics</i></button>
-					<button type="button" onclick="stylize('strike')"><strike>strikethrough</strike></button>
-					<button type="button" onclick="stylize('u')"><u>underline</u></button>
+					<button type="button" onclick="stylize('**')"><b>bold</b></button>
+					<button type="button" onclick="stylize('*')"><i>italics</i></button>
+					<button type="button" onclick="stylize('~~')"><strike>strikethrough</strike></button>
 					<button type="button">link</button>
+					<button type="button">image</button>
 				</div>
 			</p>
 
 			<div class="textbox">
-				<div id="contentbox" contenteditable="True"></div>
+				<textarea style="width: 700; height: 200;" id="input" onkeyup="render()" placeholder="Type here..."></textarea>
+				<h2>Preview</h2>
+				<div id="output" contenteditable="true"></div>
+
 			</div>
 
 			<button type="submit">Submit</button>

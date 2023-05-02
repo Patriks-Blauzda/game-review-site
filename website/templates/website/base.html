@@ -1,14 +1,13 @@
 {% load static %}
 
-<script src="{% static 'website/likedislike.js' %}"></script>
-
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{% static 'website/style.css' %}">
+    <script src="{% static 'website/likedislike.js' %}"></script>
     {% block head %}{% endblock %}
 </head>
 
-<body>
+<body {% block bodyattributes %}{%endblock %}>
     {% block bodyfirst %}{% endblock %}
 
     <header class="header">

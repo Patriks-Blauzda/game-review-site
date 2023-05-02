@@ -25,6 +25,7 @@ from .models import Publisher
 from .models import LikesUserMap
 from .models import DislikesUserMap
 from .models import UserData
+from .models import Comment
 
 from django.urls import reverse_lazy
 
@@ -107,9 +108,33 @@ class GameView(generic.ListView):
         }
 
 
+class CommentForm(forms.ModelForm):
+    name = "comment"
+
+    class Meta:
+        model = Comment
+        fields = ('content',)
+
+
 class PostView(generic.DetailView):
     model = Post
     template_name = 'website/post.html'
+
+    def get_context_data(self, **kwargs):
+        post = Post.objects.get(id=self.kwargs['pk'])
+
+        return {
+            "post": post,
+            "comments": Comment.objects.filter(post=post),
+            "form": CommentForm,
+        }
+
+    def post(self, request, **kwargs):
+        if request.user.is_authenticated:
+            pass
+        else:
+            return http.HttpResponseRedirect('account/user/register/')
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class GamesListView(generic.TemplateView):
