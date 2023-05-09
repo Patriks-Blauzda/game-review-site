@@ -1,5 +1,3 @@
-const md = require('markdown-it');
-
 function wrapSelection(style) {
     let inputbox = document.getElementById("input");
     let output;
@@ -29,13 +27,14 @@ function stylize(style) {
 }
 
 function render() {
-    let md = window.markdownit();
+    let md = new showdown.Converter();
+    md.setOption('underline', true);
 
     let inputbox = document.getElementById("input");
     let outputbox = document.getElementById("output");
 
     const render = () => {
-        outputbox.innerHTML = md.renderInline(inputbox.value);
+        outputbox.innerHTML = md.makeHtml(inputbox.value);
     }
 
     render();
