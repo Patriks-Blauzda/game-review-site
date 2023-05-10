@@ -1,6 +1,8 @@
 from django import template
+from django.contrib.auth.models import User
 from website.models import LikesUserMap
 from website.models import DislikesUserMap
+from website.models import UserData
 
 register = template.Library()
 
@@ -33,7 +35,6 @@ def get_url(value):
 
 @register.filter
 def count_likes(value):
-    value.refresh_from_db()
     match value.__class__.__name__:
         case "Game":
             return len(LikesUserMap.objects.filter(game=value)) - len(DislikesUserMap.objects.filter(game=value))
@@ -66,3 +67,13 @@ def is_disliked(value, user):
 @register.filter
 def count_user_score(value):
     return len(LikesUserMap.objects.filter(user=value)) - len(DislikesUserMap.objects.filter(user=value))
+
+
+@register.filter
+def get_image_from_user(value):
+    if isinstance(value, User):
+        return UserData.objects.get(user=value).image
+
+@register.filter
+def get_image_id_from_user(value):
+    return UserData.objects.get(user=value).image.id

@@ -1,7 +1,7 @@
-const md = require('markdown-it');
+const md = window.markdownit();
 
 function wrapSelection(style) {
-    let inputbox = document.getElementById("input");
+    let inputbox = document.getElementById("id_content");
     let output;
 
     let text = inputbox.value
@@ -14,6 +14,8 @@ function wrapSelection(style) {
          text.slice(inputbox.selectionEnd)
      );
 
+    console.log(output);
+
     inputbox.value = output;
     render();
 
@@ -21,21 +23,18 @@ function wrapSelection(style) {
 
 function stylize(style) {
     let selection = window.getSelection();
-    let inputbox = document.getElementById("input");
+    let inputbox = document.getElementById("id_content");
 
-    if(selection.focusNode == inputbox) {
-        wrapSelection(style, selection);
-    }
+    wrapSelection(style, selection);
 }
 
 function render() {
-    let md = window.markdownit();
 
-    let inputbox = document.getElementById("input");
+    let inputbox = document.getElementById("id_content");
     let outputbox = document.getElementById("output");
 
     const render = () => {
-        outputbox.innerHTML = md.renderInline(inputbox.value);
+        outputbox.innerHTML = md.render(inputbox.value);
     }
 
     render();

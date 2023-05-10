@@ -90,6 +90,7 @@ class GameView(generic.ListView):
     context_object_name = 'post_list'
 
     def get_context_data(self, **kwargs):
+        game = Game.objects.get(id=self.kwargs['pk'])
         post_list = list(Post.objects.filter(game=self.kwargs['pk']))
         post_list.sort(key=sort_popularity, reverse=True)
 
@@ -103,9 +104,22 @@ class GameView(generic.ListView):
 
         return {
             'post_list': post_list,
-            'current_game': Game.objects.filter(id=self.kwargs['pk'])[0],
+            'current_game': game,
             'sort': sort,
+            'comments': Comment.objects.filter(game=game).order_by("-date"),
+            'form': CommentForm,
         }
+
+    def post(self, request, **kwargs):
+        if request.user.is_authenticated:
+            content = self.request.POST['content']
+            game = Game.objects.get(id=self.kwargs['pk'])
+            Comment.objects.create(user=self.request.user, content=content, game=game, date=datetime.now())
+
+        else:
+            return http.HttpResponseRedirect('account/user/register/')
+
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class CommentForm(forms.ModelForm):
@@ -124,16 +138,20 @@ class PostView(generic.DetailView):
         post = Post.objects.get(id=self.kwargs['pk'])
 
         return {
-            "post": post,
-            "comments": Comment.objects.filter(post=post),
-            "form": CommentForm,
+            'post': post,
+            'comments': Comment.objects.filter(post=post).order_by("-date"),
+            'form': CommentForm,
         }
 
     def post(self, request, **kwargs):
         if request.user.is_authenticated:
-            pass
+            content = self.request.POST['content']
+            post = Post.objects.get(id=self.kwargs['pk'])
+            Comment.objects.create(user=self.request.user, content=content, post=post, date=datetime.now())
+
         else:
             return http.HttpResponseRedirect('account/user/register/')
+
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -404,35 +422,50 @@ def get_image(request, **kwargs):
 def delete(request, **kwargs):
     obj = kwargs['object']
 
-    if request.user.is_staff and obj != "post":
-        messages.success(request, "Successfully deleted")
+    if obj == "post":
+        post = Post.objects.get(id=kwargs['obj_id'])
+        if request.user.is_staff or post.author == request.user:
+            messages.success(request, "Successfully deleted post")
+            post.delete()
+            return http.HttpResponseRedirect("/game/" + str(post.game.id))
+        else:
+            messages.error(request, "User is not author or staff member")
 
+
+    if obj == "comment":
+        comment = Comment.objects.get(id=kwargs['obj_id'])
+        if request.user.is_staff or comment.user == request.user:
+            messages.success(request, "Successfully deleted comment")
+            comment.delete()
+
+            if comment.post:
+                return http.HttpResponseRedirect("/post/" + str(comment.post.id))
+            if comment.game:
+                return http.HttpResponseRedirect("/post/" + str(comment.game.id))
+        else:
+            messages.error(request, "User is not author or staff member")
+
+
+    if request.user.is_staff and obj != "post":
         match obj.lower():
             case "game":
                 Game.objects.filter(id=kwargs['obj_id']).delete()
+                messages.success(request, "Successfully deleted game")
                 return http.HttpResponseRedirect("/")
 
             case "developer":
                 Developer.objects.filter(id=kwargs['obj_id']).delete()
+                messages.success(request, "Successfully deleted developer")
 
             case "publisher":
                 Publisher.objects.filter(id=kwargs['obj_id']).delete()
+                messages.success(request, "Successfully deleted publisher")
 
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
     elif obj != "post":
         messages.error(request, "User is not staff")
 
-    if obj == "post":
-        post = Post.objects.get(id=kwargs['obj_id'])
-        if request.user.is_staff or post.author == request.user:
-            messages.success(request, "Successfully deleted")
-            post.delete()
-            return http.HttpResponseRedirect("/game/" + str(post.game.id))
-        else:
-            messages.error(request, "User is not author or staff member")
-    else:
-        messages.error(request, "Invalid object")
 
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -528,12 +561,29 @@ class UserProfile(generic.DetailView):
     template_name = "website/userprofile.html"
 
     def get_context_data(self, **kwargs):
+        user = User.objects.get(id=self.kwargs['pk'])
+        userdata = UserData.objects.get(user=user)
+
         context = {
             'account': User.objects.get(id=self.kwargs['pk']),
-            'userdata': UserData.objects.get(user=User.objects.get(id=self.kwargs['pk'])),
+            'userdata': userdata,
             'acc_posts': Post.objects.filter(author=self.kwargs['pk']),
+            'form': CommentForm,
+            'comments': Comment.objects.filter(profileuserdata=userdata).order_by("-date"),
+            'sidebar_latest_comments': Comment.objects.filter(user=user).order_by("-date")[:6],
         }
         return context
+
+    def post(self, request, **kwargs):
+        if request.user.is_authenticated:
+            content = self.request.POST['content']
+            userdata = UserData.objects.get(user=User.objects.get(id=self.kwargs['pk']))
+            Comment.objects.create(user=self.request.user, content=content, profileuserdata=userdata, date=datetime.now())
+
+        else:
+            return http.HttpResponseRedirect('account/user/register/')
+
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class UserSettings(generic.FormView):

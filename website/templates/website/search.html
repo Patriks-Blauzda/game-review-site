@@ -29,6 +29,8 @@
                         <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
                             {% if result.image %}
                                 <img alt="a" src="{% url 'website:get_image' result.image.id %}">
+                            {% elif result|get_image_from_user %}
+                                <img alt="a" src="{% url 'website:get_image' result|get_image_id_from_user %}">
                             {% else %}
                                 <img src=
                                     {% if result|get_model_name == 'Game' %}

@@ -2,6 +2,35 @@
 {% load web_extras %}
 {% load static %}
 
+{% block head %}
+    <script src="{% static 'website/javascript/tabs.js' %}"></script>
+{% endblock %}
+
+{% block sidebar %}
+    <a href="#" style="text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">Comments from {{ account.username }}</a>
+    <ul class="sidebar-list">
+        {% for comment in sidebar_latest_comments %}
+            <li>
+                <a href="
+                    {% if comment.game %} {% url 'website:game' comment.game.id %}
+                    {% elif comment.profileuserdata %} {% url 'website:profile' comment.profileuserdata.user.id %}
+                    {% elif comment.post %} {% url 'website:post' comment.post.id %}
+                    {% endif %}
+                ">
+                    <h5>
+                        {% if comment.game %} {{ comment.game.title }}
+                        {% elif comment.profileuserdata %} {{ comment.profileuserdata.user.username }}
+                        {% elif comment.post %} {{ comment.post.title }}
+                        {% endif %}
+                    </h5>
+
+                    {{ comment.content }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
 {% block main %}
     <div id="padded-content">
         <h1>{{ account.username }}</h1>
@@ -20,63 +49,103 @@
         <p>Last online: {{ account.last_login }}</p>
         <br>
         <p>User score: {{ account|count_user_score }}</p>
-        <h3 style="margin-top: 75;">User posts:</h3>
     </div>
 
-    {% if acc_posts %}
-            <ul>
-            <div class="list">
-                <li>
-                    {% for post in acc_posts.all %}
-                        <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
-                            <div class="list-element-main">
-                                <a href="{% url 'website:post' post.id %}" style="width: 100%;">
-                                    {% if post.image %}
-                                        <img src="{% url 'website:get_image' post.image.id %}">
-                                    {% else %}
-                                        <img src="{% static 'website/post_default_image.png' %}" alt="No image">
-                                    {% endif %}
+    <div class="tabs">
+        <button class="tablinks active" onclick="switch_tabs(event, 'posts')">Posts by User</button>
+        <button class="tablinks" onclick="switch_tabs(event, 'comments')">Comments on {{ account.username }}'s profile</button>
+    </div>
 
-                                    <h3>{{ post.title }}</h3>
-                                    <div class="list-text">
-                                        {{ post.description }}
-                                    </div>
+    <div id="posts" class="tabcontent">
+        {% if acc_posts %}
+                <ul>
+                <div class="list">
+                    <li>
+                        {% for post in acc_posts.all %}
+                            <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                                <div class="list-element-main">
+                                    <a href="{% url 'website:post' post.id %}" style="width: 100%;">
+                                        {% if post.image %}
+                                            <img src="{% url 'website:get_image' post.image.id %}">
+                                        {% else %}
+                                            <img src="{% static 'website/post_default_image.png' %}" alt="No image">
+                                        {% endif %}
 
-                                </a>
-                                {% if request.user.is_staff %}
-                                    <a id="delete" href="{% url 'website:delete' 'post' post.id %}">
-                                        <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                        <h3>{{ post.title }}</h3>
+                                        <div class="list-text">
+                                            {{ post.description }}
+                                        </div>
+
                                     </a>
-                                {% endif %}
+                                    {% if request.user.is_staff %}
+                                        <a id="delete" href="{% url 'website:delete' 'post' post.id %}">
+                                            <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="like-dislike">
+                                    {% if request.user.is_authenticated %}
+                                        <button
+                                            id="like{{ post.id }}"
+                                            type="button"
+                                            onclick="like_post({{ post.id }});"
+                                            style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                                        >▲</button>
+
+                                        <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+
+                                        <button
+                                            id="dislike{{ post.id }}"
+                                            type="button"
+                                            onclick="dislike_post({{ post.id }});"
+                                            style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                                        >▼</button>
+                                    {% else %}
+                                        ▲ {{ post|count_likes }} ▼
+                                    {% endif %}
+                                </div>
                             </div>
+                        {% endfor %}
 
+                    </li>
+                </div>
+            </ul>
+        {% endif %}
+    </div>
 
-                            <div class="like-dislike">
-                                {% if request.user.is_authenticated %}
-                                    <button
-                                        id="like{{ post.id }}"
-                                        type="button"
-                                        onclick="like_post({{ post.id }});"
-                                        style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
-                                    >▲</button>
+    <div id="comments" class="tabcontent" style="display: none;">
+        <p>Write a comment</p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.content}}
+            <br>
+            <button type="submit">Post</button>
+        </form>
 
-                                    <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+        {% for comment in comments %}
+            <div class="comment">
+                <div>
+                    {% if comment.user|get_image_from_user %}
+                        <img src="{% url 'website:get_image' comment.user|get_image_id_from_user %}">
+                    {% else %}
+                        <img src="{% static 'website/user_default_image.jpg' %}" alt="No image">
+                    {% endif %}
+                </div>
 
-                                    <button
-                                        id="dislike{{ post.id }}"
-                                        type="button"
-                                        onclick="dislike_post({{ post.id }});"
-                                        style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
-                                    >▼</button>
-                                {% else %}
-                                    ▲ {{ post|count_likes }} ▼
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
+                <div id="comment-contents">
+                    <h3><a href="{% url 'website:profile' comment.user.id %}">{{ comment.user.username }}</a></h3>
+                    <p>{{ comment.content }}</p>
+                    <p id="date">{{ comment.date }}</p>
+                </div>
 
-                </li>
+                {% if request.user.is_staff %}
+                    <a id="delete" href="{% url 'website:delete' 'comment' comment.id %}">
+                        <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                    </a>
+                {% endif %}
             </div>
-        </ul>
-    {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}

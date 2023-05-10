@@ -222,7 +222,7 @@ nav > ul > li:hover > ul > li > a {
 
 
 .title {
-    display: flex;
+    /* display: flex; */
     justify-content: space-between;
 }
 
@@ -407,6 +407,7 @@ nav > ul > li:hover > ul > li > a {
 #delete {
     margin-left: auto;
     margin-top: auto;
+    padding-left: 10px;
 }
 
 #author {
@@ -531,4 +532,37 @@ footer {
 .comments-list input {
     width: 30%;
     height: 140px;
+}
+
+.comment {
+    padding: 10px 0;
+    border-top: 1px solid grey;
+    display: flex;
+}
+
+.comment > #comment-contents {
+    padding-left: 15px;
+}
+
+.comment > #comment-contents > h3 > a {
+    text-decoration: none;
+    color: black;
+    padding: 1px 5px;
+    border-radius: 10px;
+    background: #d4d4d4;
+}
+
+.comment > #comment-contents > h3 > a:hover {
+    background-color: cfbcbc;
+}
+
+.comment > #comment-contents > p {
+    padding-top: 10px;
+}
+
+.comment > #comment-contents > #date {
+    font-size: 16px;
+    border-top: 1px solid #c4c4c4;
+    margin-top: 5px;
+    padding-top: 2px;
 }

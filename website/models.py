@@ -94,6 +94,10 @@ class DislikesUserMap(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True)
+    profileuserdata = models.ForeignKey(UserData, on_delete=models.CASCADE, blank=True, null=True)
+
     content = models.CharField(blank=True, null=True, max_length=1000)
+    date = models.DateTimeField('date', blank=True, null=True)

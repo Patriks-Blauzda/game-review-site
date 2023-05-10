@@ -2,6 +2,12 @@
 {% load web_extras %}
 {% load static %}
 
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+	<script src="{% static 'website/javascript/renderpost.js' %}"></script>
+{% endblock %}
+
+
 {% block sidebar %}
     {% if post %}
         <a href="{% url 'website:game' post.game.id %}">{{ post.game.title }}</a>
@@ -54,46 +60,51 @@
             <div class="title">
                 <h1>{{ post.title }}</h1>
 
-                <div>
-                    {% if post.pubdate %}
-                        Posted: {{ post.pubdate }}
-                    {% else %}
-                        Posted: Time unspecified
-                    {% endif %}
+                <div class="like-dislike" style="margin: 0;">
+                    {% if request.user.is_authenticated %}
+                        <button
+                                id="like{{ post.id }}"
+                                type="button"
+                                onclick="like_post({{ post.id }});"
+                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                        >▲</button>
 
-                    {% if request.user.is_staff or request.user.username == post.author.username %}
-                        <a href="{% url 'website:delete' 'post' post.id %}" style="margin-left: 2rem;">
-                            <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
-                        </a>
+                        <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+
+                        <button
+                                id="dislike{{ post.id }}"
+                                type="button"
+                                onclick="dislike_post({{ post.id }});"
+                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                        >▼</button>
+                    {% else %}
+                        ▲ {{ post|count_likes }} ▼
                     {% endif %}
                 </div>
             </div>
 
-            <div class="like-dislike" style="margin: 0;">
-                {% if request.user.is_authenticated %}
-                    <button
-                            id="like{{ post.id }}"
-                            type="button"
-                            onclick="like_post({{ post.id }});"
-                            style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
-                    >▲</button>
-
-                    <span id="score{{ post.id }}">{{ post|count_likes }}</span>
-
-                    <button
-                            id="dislike{{ post.id }}"
-                            type="button"
-                            onclick="dislike_post({{ post.id }});"
-                            style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
-                    >▼</button>
+            <div>
+                {% if post.pubdate %}
+                    Posted: {{ post.pubdate }}
                 {% else %}
-                    ▲ {{ post|count_likes }} ▼
+                    Posted: Time unspecified
+                {% endif %}
+
+                {% if request.user.is_staff or request.user.username == post.author.username %}
+                    <a href="{% url 'website:delete' 'post' post.id %}" style="margin-left: 2rem;">
+                        <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                    </a>
                 {% endif %}
             </div>
 
-            <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
+            <p style="border-bottom: solid 1px grey; padding-bottom: 15px;">
+                Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a>
+            </p>
 
-            <p>{{ post.content|linebreaks }}</p>
+
+            <div id="content">{{ post.content|linebreaks }}</div>
+
+            <div style="border-top: solid 1px grey; margin: 15px 0;"></div>
             <div class="comments-list">
                 <h2>Comments</h2>
 
@@ -107,7 +118,25 @@
 
                 {% for comment in comments %}
                     <div class="comment">
+                        <div>
+                            {% if comment.user|get_image_from_user %}
+                                <img src="{% url 'website:get_image' comment.user|get_image_id_from_user %}">
+                            {% else %}
+                                <img src="{% static 'website/user_default_image.jpg' %}" alt="No image">
+                            {% endif %}
+                        </div>
 
+                        <div id="comment-contents">
+                            <h3><a href="{% url 'website:profile' comment.user.id %}">{{ comment.user.username }}</a></h3>
+                            <p>{{ comment.content }}</p>
+                            <p id="date">{{ comment.date }}</p>
+                        </div>
+
+                        {% if request.user.is_staff %}
+                            <a id="delete" href="{% url 'website:delete' 'comment' comment.id %}">
+                                <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
