@@ -29,16 +29,13 @@ function wrapSelection(opener, closer) {
          text.slice(inputbox.selectionEnd)
      );
 
-    console.log(output);
-
     inputbox.value = output;
 
 }
 
 function stylize(opener, closer = null) {
     let selection = window.getSelection();
-    let inputbox = document.getElementById("id_content");
-
+    let inputbox = document.getElementById("input");
 
     if(closer) { wrapSelection(opener, closer); }
     else { wrapSelection(opener, opener); }
@@ -120,7 +117,7 @@ function render() {
     sd.setOption('strikethrough', true);
     sd.setOption('underline', true);
 
-    let inputbox = document.getElementById("id_content");
+    let inputbox = document.getElementById("input");
     let outputbox = document.getElementById("output");
 
     const render = () => {
