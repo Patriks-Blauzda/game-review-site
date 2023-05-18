@@ -1,4 +1,21 @@
-function wrapSelection(style) {
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Checking if the cookie substring matches what we want
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+function wrapSelection(opener, closer) {
     let inputbox = document.getElementById("input");
     let output;
 
@@ -7,34 +24,104 @@ function wrapSelection(style) {
     if(inputbox.value[inputbox.selectionEnd - 1] === " ") { inputbox.selectionEnd--; }
 
      output = (
-         text.slice(0, inputbox.selectionStart) + style +
-         text.slice(inputbox.selectionStart, inputbox.selectionEnd) + style +
+         text.slice(0, inputbox.selectionStart) + opener +
+         text.slice(inputbox.selectionStart, inputbox.selectionEnd) + closer +
          text.slice(inputbox.selectionEnd)
      );
 
     inputbox.value = output;
-    render();
 
 }
 
-function stylize(style) {
+function stylize(opener, closer = null) {
     let selection = window.getSelection();
     let inputbox = document.getElementById("input");
 
-    if(selection.focusNode == inputbox) {
-        wrapSelection(style, selection);
+    if(closer) { wrapSelection(opener, closer); }
+    else { wrapSelection(opener, opener); }
+}
+
+
+function toggleVisibility(elementid) {
+    let options = document.getElementById("textformatoptions").children;
+
+    for(let i = 0; i < options.length; i++) {
+        if(options[i].id != elementid) { options[i].hidden = true; }
+    }
+
+
+
+    let element = document.getElementById(elementid);
+    element.hidden = !element.hidden;
+}
+
+
+function pasteLink() {
+    let link = document.getElementById("formatlinkinput").value;
+    let text = document.getElementById("formatlinktextinput").value;
+
+    if(link) {
+        if(text) {
+            wrapSelection("[" + text + "](" + link + ")", "");
+        } else {
+            wrapSelection("<" + link + ">", "");
+        }
+
+        render();
     }
 }
 
+
+function uploadImage() {
+    const url = "http://" + location.hostname + ":" + location.port + "/addtempimage/";
+
+    let img = document.getElementById("uploadedimage");
+
+    if (!img.files[0]) return;
+
+    const data = new FormData();
+    data.append("image", img.files[0]);
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: data,
+        credentials: 'same-origin',
+    }).then(
+        res => res.json()
+    ).then(
+        data => {
+            wrapSelection("![](http://" + location.hostname + ":" + location.port + "/image/" + data.image_id + ")", "");
+            render();
+        }
+    );
+
+}
+
+
+function pasteImage() {
+    let imagelink = document.getElementById("formatimginput").value;
+
+    if(imagelink) {
+        wrapSelection("![](" + imagelink + ")", "");
+
+        render();
+    }
+}
+
+
 function render() {
-    let md = new showdown.Converter();
-    md.setOption('underline', true);
+    let sd = new showdown.Converter();
+    sd.setOption('strikethrough', true);
+    sd.setOption('underline', true);
 
     let inputbox = document.getElementById("input");
     let outputbox = document.getElementById("output");
 
     const render = () => {
-        outputbox.innerHTML = md.makeHtml(inputbox.value);
+        outputbox.innerHTML = sd.makeHtml(inputbox.value);
     }
 
     render();
@@ -42,3 +129,19 @@ function render() {
 
 
 window.onload = render;
+
+
+function readFile() {
+
+  if (!this.files || !this.files[0]) return;
+
+  const FR = new FileReader();
+
+  FR.addEventListener("load", function(evt) {
+    wrapSelection( "<img src=" + evt.target.result + ">", "");
+    render();
+  });
+
+  FR.readAsDataURL(this.files[0]);
+
+}

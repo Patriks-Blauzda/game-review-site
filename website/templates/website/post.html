@@ -30,7 +30,7 @@
                     style="{% if post.game|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
             >▼</button>
         {% else %}
-            ▲ {{ current_game|count_likes }} ▼
+            ▲ {{ post.game|count_likes }} ▼
         {% endif %}
     </div>
 
@@ -94,6 +94,7 @@
             <p>Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a></p>
 
             <p>{{ post.content|linebreaks }}</p>
+
             <div class="comments-list">
                 <h2>Comments</h2>
 

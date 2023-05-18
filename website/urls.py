@@ -24,6 +24,7 @@ urlpatterns = [
     path('create/<str:object>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('create/<str:object>/<int:game_id>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('create/<str:object>/<str:entity>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
+    path('addtempimage/', views.add_temp_image, name='addtempimage'),
 
     path('account/user/<str:action>/', views.AccountView.as_view(), name='account'),
     path('account/settings/', login_required(views.UserSettings.as_view(), login_url=login_path), name='account_settings'),
