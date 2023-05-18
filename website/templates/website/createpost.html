@@ -3,7 +3,7 @@
 
 
 {% block head %}
-	<script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 	<script src="{% static 'website/javascript/textformatting.js' %}"></script>
 {% endblock %}
 
@@ -48,19 +48,45 @@
 			</p>
 
 			<p>
-				<h4>{{ form.title.label_tag }}</h2>
+				<h4>{{ form.title.label_tag }}</h4>
 				{{ form.title }}
 			</p>
 
 			<p>
 				<h4>{{ form.content.label_tag }}</h4>
-				<div>
+				<div class="textformatbuttons">
 					<button type="button" onclick="stylize('**')"><b>bold</b></button>
 					<button type="button" onclick="stylize('*')"><i>italics</i></button>
 					<button type="button" onclick="stylize('~~')"><strike>strikethrough</strike></button>
-					<button type="button">link</button>
-					<button type="button">image</button>
+					<button type="button" onclick="stylize('__')"><u>underline</u></button>
+					<button type="button" onclick="toggleVisibility('formatlinkoption')">link</button>
+					<button type="button" onclick="toggleVisibility('formatimageoption')">image</button>
 				</div>
+
+				<div id="textformatoptions">
+
+					<div id="formatlinkoption" hidden="true">
+						<p>Link:</p>
+						<input id="formatlinkinput">
+						<p>Link Name:</p>
+						<input id="formatlinktextinput">
+						<br>
+						<button type="button" onclick="pasteLink()">Save</button>
+					</div>
+
+					<div id="formatimageoption" hidden="true">
+						<p>Image URL:</p>
+						<input id="formatimginput">
+						<button type="button" onclick="pasteImage()">Save</button>
+
+						<p>Upload Image:</p>
+
+						<input id="uploadedimage" type="file">
+						<button type="button" onclick="uploadImage()">Upload</button>
+					</div>
+
+				</div>
+
 			</p>
 
 			<div class="textbox">

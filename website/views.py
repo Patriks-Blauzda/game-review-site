@@ -395,7 +395,7 @@ class CreateView(generic.ListView):
             context = super().get_context_data(**kwargs)
 
             form = self.form_class
-
+            
             context["form"] = form
 
             context = context | sidebar_list
@@ -410,6 +410,15 @@ def add_image_to_db(image):
     row.refresh_from_db()
 
     return row.id
+
+
+def add_temp_image(request):
+    image = request.FILES['image']
+
+    image_id = add_image_to_db(image)
+
+    return http.JsonResponse({'status': 'success', 'image_id': image_id}, status=200)
+
 
 
 def get_image(request, **kwargs):
