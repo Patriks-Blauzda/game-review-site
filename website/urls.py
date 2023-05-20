@@ -26,6 +26,8 @@ urlpatterns = [
     path('create/<str:object>/<str:entity>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('addtempimage/', views.add_temp_image, name='addtempimage'),
 
+    path('abortpostcreation/', views.delete_unused_images, name='abort_post_creation'),
+
     path('account/user/<str:action>/', views.AccountView.as_view(), name='account'),
     path('account/settings/', login_required(views.UserSettings.as_view(), login_url=login_path), name='account_settings'),
     path('account/profile/<int:pk>/', views.UserProfile.as_view(), name='profile'),

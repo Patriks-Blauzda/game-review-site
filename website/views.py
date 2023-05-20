@@ -413,19 +413,45 @@ def add_image_to_db(image):
 
 
 def add_temp_image(request):
-    image = request.FILES['image']
+    if request.FILES:
+        image = request.FILES['image']
 
-    image_id = add_image_to_db(image)
+        image_id = add_image_to_db(image)
 
-    return http.JsonResponse({'status': 'success', 'image_id': image_id}, status=200)
+        return http.JsonResponse({'status': 'success', 'image_id': image_id}, status=200)
 
+    return http.HttpResponseForbidden()
+
+
+def delete_unused_images(request):
+    if request.POST['images']:
+
+        data = request.POST['images']
+        newdata = []
+
+        for id in data.split(","):
+            newdata.append(int(id))
+
+        for image_id in newdata:
+            Image.objects.get(id=image_id).delete()
+
+        return http.HttpResponse()
+
+    return http.HttpResponseForbidden()
 
 
 def get_image(request, **kwargs):
     id = kwargs['pk']
-    image_data = Image.objects.get(id=id).binary_blob
-    image = base64.b64decode(image_data)
-    return http.HttpResponse(image, content_type="image/png")
+
+    if Image.objects.filter(id=id).exists():
+
+        image_data = Image.objects.get(id=id).binary_blob
+        image = base64.b64decode(image_data)
+        return http.HttpResponse(image, content_type="image/png")
+
+    return http.HttpResponse()
+
+
 
 
 def delete(request, **kwargs):

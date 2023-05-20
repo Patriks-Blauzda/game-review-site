@@ -51,35 +51,37 @@
 {% block main %}
     <div class="post-body" id="padded-content">
         {% if post %}
-            {% if post.image %}
-                <img src="{% url 'website:get_image' post.image.id %}">
-            {% else %}
-                <img src="{% static 'website/post_default_image.png' %}" alt="No image">
-            {% endif %}
+            <div style="display: flex; align-items: center;">
+                {% if post.image %}
+                    <img src="{% url 'website:get_image' post.image.id %}">
+                {% else %}
+                    <img src="{% static 'website/post_default_image.png' %}" alt="No image">
+                {% endif %}
 
-            <div class="title">
-                <h1>{{ post.title }}</h1>
+                <div class="title">
+                    <h1>{{ post.title }}</h1>
 
-                <div class="like-dislike" style="margin: 0;">
-                    {% if request.user.is_authenticated %}
-                        <button
-                                id="like{{ post.id }}"
-                                type="button"
-                                onclick="like_post({{ post.id }});"
-                                style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
-                        >▲</button>
+                    <div class="like-dislike" style="margin: 0; width: auto;">
+                        {% if request.user.is_authenticated %}
+                            <button
+                                    id="like{{ post.id }}"
+                                    type="button"
+                                    onclick="like_post({{ post.id }});"
+                                    style="{% if post|is_liked:request.user %}color: #00b300;{% else %}color: #000000;{% endif %}"
+                            >▲</button>
 
-                        <span id="score{{ post.id }}">{{ post|count_likes }}</span>
+                            <span id="score{{ post.id }}">{{ post|count_likes }}</span>
 
-                        <button
-                                id="dislike{{ post.id }}"
-                                type="button"
-                                onclick="dislike_post({{ post.id }});"
-                                style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
-                        >▼</button>
-                    {% else %}
-                        ▲ {{ post|count_likes }} ▼
-                    {% endif %}
+                            <button
+                                    id="dislike{{ post.id }}"
+                                    type="button"
+                                    onclick="dislike_post({{ post.id }});"
+                                    style="{% if post|is_disliked:request.user %}color: #b30000;{% else %}color: #000000;{% endif %}"
+                            >▼</button>
+                        {% else %}
+                            ▲ {{ post|count_likes }} ▼
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 

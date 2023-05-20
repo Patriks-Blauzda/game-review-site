@@ -71,6 +71,7 @@ function pasteLink() {
     }
 }
 
+const saved_images = [];
 
 function uploadImage() {
     const url = "http://" + location.hostname + ":" + location.port + "/addtempimage/";
@@ -95,6 +96,7 @@ function uploadImage() {
         data => {
             wrapSelection("![](http://" + location.hostname + ":" + location.port + "/image/" + data.image_id + ")", "");
             render();
+            saved_images.push(data.image_id);
         }
     );
 
@@ -144,4 +146,32 @@ function readFile() {
 
   FR.readAsDataURL(this.files[0]);
 
+}
+
+
+window.addEventListener("beforeunload", (event) => {
+    if(!submitting) {
+        event.returnValue = 'Are you sure you want to leave? Information will not be saved.';
+    }
+});
+
+
+var submitting = false;
+function submitForm() { submitting = true; };
+
+window.onunload = function () {
+    if(!submitting) {
+        const data = new FormData();
+        data.append("images", saved_images);
+
+        fetch("http://" + location.hostname + ":" + location.port + "/abortpostcreation/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: data,
+            credentials: 'same-origin',
+            keepalive: true
+        });
+    }
 }
