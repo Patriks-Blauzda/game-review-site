@@ -41,6 +41,9 @@
                         <ul class="submenu">
                             <li><a href="{% url 'website:profile' request.user.id %}">Profile <i class="fa fa-id-card-o"></i></a></li>
                             <li><a href="{% url 'website:account_settings' %}">Settings <i class="fa fa-cog"></i></a></li>
+                            {% if request.user.is_staff %}
+                                <li><a href="{% url 'website:admin_panel' %}">Admin Panel <i class="fa fa-shield"></i></a></li>
+                            {% endif %}
                             <li><a href="{% url 'website:logout' %}">Log Out <i class="fa fa-sign-out"></i></a></li>
                         </ul>
                     </li>

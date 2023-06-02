@@ -100,7 +100,10 @@
             </div>
 
             <p style="border-bottom: solid 1px grey; padding-bottom: 15px;">
-                Author: <a href="{% url 'website:profile' post.author.id %}">{{ post.author.username }}</a>
+                Author: <a href="{% url 'website:profile' post.author.id %}">
+                    {{ post.author.username }}
+                    {% if post.author.is_staff %}<i class="fa fa-certificate" aria-hidden="true" style="font-size: 16px; color: #49c030;"></i>{% endif %}
+                </a>
             </p>
 
             <div id="content">{{ post.content|linebreaks }}</div>
@@ -128,7 +131,16 @@
                         </div>
 
                         <div id="comment-contents">
-                            <h3><a href="{% url 'website:profile' comment.user.id %}">{{ comment.user.username }}</a></h3>
+                            <h3>
+                                <a href="{% url 'website:profile' comment.user.id %}">
+                                    {{ comment.user.username }}
+                                    {% if comment.user.is_staff %}
+                                        <i class="fa fa-certificate" aria-hidden="true" style="font-size: 20px; color: #49c030;"></i>
+                                    {% elif not comment.user.is_active %}
+                                        <i class="fa fa-times-circle" aria-hidden="true" style="font-size: 20px; color: #df2525;"></i>
+                                    {% endif %}
+                                </a>
+                            </h3>
                             <p>{{ comment.content }}</p>
                             <p id="date">{{ comment.date }}</p>
                         </div>

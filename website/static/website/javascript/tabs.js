@@ -15,6 +15,6 @@ function switch_tabs(evt, tab_name) {
   }
 
   // Show the current tab, and add an "active" class to the button that opened the tab
-  document.getElementById(tab_name).style.display = "inline";
+  document.getElementById(tab_name).style.display = "block";
   evt.currentTarget.className += " active";
 }

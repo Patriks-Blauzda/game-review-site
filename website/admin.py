@@ -6,6 +6,7 @@ from .models import Image
 from .models import LikesUserMap
 from .models import DislikesUserMap
 from .models import UserData
+from .models import Report
 
 # Register your models here.
 admin.site.register(Game)
@@ -14,3 +15,4 @@ admin.site.register(Image)
 admin.site.register(LikesUserMap)
 admin.site.register(DislikesUserMap)
 admin.site.register(UserData)
+admin.site.register(Report)

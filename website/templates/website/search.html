@@ -51,6 +51,14 @@
                             <h3>
                                 {{ result.title }}
                                 {{ result.username }}
+
+                                {% if result|get_model_name == 'User' %}
+                                    {% if result.is_staff %}
+                                        <i class="fa fa-certificate" aria-hidden="true" style="font-size: 20px; color: #49c030;"></i>
+                                    {% elif not result.is_active %}
+                                        <i class="fa fa-times-circle" aria-hidden="true" style="font-size: 20px; color: #df2525;"></i>
+                                    {% endif %}
+                                {% endif %}
                             </h3>
 
                             <h5 style="float: right; margin-top: -25px; margin-right: 5px;">{{ result|get_model_name }}</h5>

@@ -16,6 +16,8 @@ from django.forms.widgets import DateInput
 import base64
 from itertools import chain
 from django.db.models.functions import Lower
+from django.utils.html import format_html
+from django.urls import reverse
 
 from .models import Game
 from .models import Post
@@ -26,8 +28,27 @@ from .models import LikesUserMap
 from .models import DislikesUserMap
 from .models import UserData
 from .models import Comment
+from .models import Report
 
 from django.urls import reverse_lazy
+
+
+
+class AdminPanelView(generic.ListView):
+    template_name = 'website/adminpanel.html'
+    queryset = User.objects.all()
+
+    def get_queryset(self):
+        return None
+
+    def get_context_data(self):
+        query = self.request.GET.get("user")
+        users = User.objects.all()
+
+        if query:
+            users = User.objects.filter(Q(username__icontains=query))
+
+        return {"users": users}
 
 
 def sort_postcount(e):
@@ -351,8 +372,10 @@ class CreateView(generic.ListView):
 
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
 
+
     def get_queryset(self):
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
+
 
     def get_context_data(self, **kwargs):
         sidebar_list = {}
@@ -452,6 +475,41 @@ def get_image(request, **kwargs):
     return http.HttpResponse()
 
 
+def disable_user(request, **kwargs):
+    if request.user.is_staff:
+        user = User.objects.get(id=kwargs['user_id'])
+
+        if user.is_active:
+            user.is_active = False
+            user.save()
+            messages.success(request, "User account deactivated")
+
+        else:
+            messages.error(request, "User account is already deactivated")
+
+    else:
+        messages.error(request, "User is not a staff member")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def restore_user(request, **kwargs):
+    if request.user.is_staff:
+        user = User.objects.get(id=kwargs['user_id'])
+
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+            messages.success(request, "User account reactivated")
+
+        else:
+            messages.error(request, "User account is already active")
+
+    else:
+        messages.error(request, "User is not a staff member")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 
 def delete(request, **kwargs):
@@ -465,6 +523,16 @@ def delete(request, **kwargs):
             return http.HttpResponseRedirect("/game/" + str(post.game.id))
         else:
             messages.error(request, "User is not author or staff member")
+
+
+    if obj == "user":
+        account = User.objects.get(id=kwargs['obj_id'])
+        if request.user.is_staff and not account.is_active:
+            messages.success(request, "Successfully deleted user account")
+            account.delete()
+            return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+            messages.error(request, "User is not a staff member")
 
 
     if obj == "comment":
@@ -509,6 +577,7 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'password1', 'password2', 'email']
+        # limit username length
 
 
 class LoginForm(forms.Form):
@@ -542,22 +611,27 @@ class AccountView(generic.FormView):
                 form = RegisterForm(request.POST)
 
                 if form.is_valid():
-                    form.save()
+                    if not User.objects.filter(email=form.cleaned_data['email']).exists():
+                        form.save()
 
-                    un = form.cleaned_data['username']
-                    pw = form.cleaned_data['password1']
+                        un = form.cleaned_data['username'][:20]
+                        pw = form.cleaned_data['password1']
 
-                    auth = authenticate(request, username=un, password=pw)
-                    UserData.objects.create(user=User.objects.get(username=auth))
+                        auth = authenticate(request, username=un, password=pw)
+                        UserData.objects.create(user=User.objects.get(username=auth))
 
-                    if auth:
-                        login(request, auth)
+                        if auth:
+                            login(request, auth)
 
-                        messages.success(request, "Account successfully registered and logged in")
-                        return http.HttpResponseRedirect("/")
+                            messages.success(request, "Account successfully registered and logged in")
+                            return http.HttpResponseRedirect("/")
+                        else:
+                            messages.error(request, "There was a problem registering, please try again")
+                            return http.HttpResponseRedirect("/account/user/register/")
+
                     else:
-                        messages.error(request, "There was a problem registering, please try again")
-                        return http.HttpResponseRedirect("/account/user/register/")
+                        messages.error(request, "Email is already in use")
+                        return render(request, 'website/register.html', {'form': form})
 
                 else:
                     messages.error(request, form.errors)
@@ -579,10 +653,26 @@ class AccountView(generic.FormView):
                         if next:
                             return http.HttpResponseRedirect(next)
                         else:
+
                             return http.HttpResponseRedirect("/")
+
+                    elif User.objects.filter(username=un).exists():
+                        if not User.objects.get(username=un).is_active:
+                            messages.error(request, "This account has been deactivated")
+                            messages.error(request, "Please contact the administrator: admin@email.com")
+                        else:
+                            messages.error(request, "Incorrect password")
+
                     else:
-                        messages.error(request, "Login failed")
-                        return http.HttpResponseRedirect("/account/user/login/")
+                        messages.error(request, "This account does not exist")
+
+                        msg_link = format_html(
+                            "<a href={}>Click here to register</a>",
+                            reverse("website:account", kwargs={"action": 'register'})
+                        )
+                        messages.error(request, msg_link)
+
+                    return http.HttpResponseRedirect("/account/user/login/")
 
 
 def log_user_out(request):
@@ -637,7 +727,7 @@ class UserSettings(generic.FormView):
                 if check_password(form['username_password_auth'], request.user.password):
                     if not User.objects.filter(username=new_username).exists():
                         user = request.user
-                        user.username = new_username
+                        user.username = new_username[:25]
                         user.save()
 
                         messages.success(request, "Username updated")
@@ -901,3 +991,13 @@ class PostsListView(generic.ListView):
             'latest_games': Game.objects.order_by("-id")[:5],
             'sort': sort,
         }
+
+
+def ReportView(request, object, pk):
+    content = "Reason for report"
+
+    user = User.objects.get(id=pk)
+    Report.objects.create(reason=content, user=user)
+    messages.success(request, "User has been reported")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -8,6 +8,8 @@ app_name = 'website'
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
 
+    path('panel/', views.AdminPanelView.as_view(), name='admin_panel'),
+
     path('game/<int:pk>/', views.GameView.as_view(), name='game'),
 
     path('post/<int:pk>/', views.PostView.as_view(), name='post'),
@@ -20,6 +22,9 @@ urlpatterns = [
     path('publisher/<int:pk>', views.PublisherView.as_view(), name='publisher'),
 
     path('delete/<str:object>/<int:obj_id>/', views.delete, name='delete'),
+
+    path('disable/<int:user_id>/', views.disable_user, name='disable'),
+    path('restore/<int:user_id>', views.restore_user, name='restore'),
 
     path('create/<str:object>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
     path('create/<str:object>/<int:game_id>/', login_required(views.CreateView.as_view(), login_url=login_path), name='create'),
@@ -41,6 +46,8 @@ urlpatterns = [
 
     path('dislike/game/<int:game>/', login_required(views.dislike_game, login_url=login_path), name='dislike_game'),
     path('dislike/post/<int:post>/', login_required(views.dislike_post, login_url=login_path), name='dislike_post'),
+
+    path('report/<str:object>/<int:pk>/', login_required(views.ReportView, login_url=login_path), name='report'),
 
     path('image/<int:pk>', views.get_image, name='get_image'),
 ]

@@ -4,6 +4,7 @@
 
 {% block head %}
     <script src="{% static 'website/javascript/tabs.js' %}"></script>
+    <script src="{% static 'website/javascript/popupwindow.js' %}"></script>
 {% endblock %}
 
 {% block sidebar %}
@@ -33,11 +34,25 @@
 
 {% block main %}
     <div id="padded-content">
-        <h1>{{ account.username }}</h1>
+        <h1>
+            {{ account.username }}
+            {% if account.is_staff %}
+                <i class="fa fa-certificate" aria-hidden="true" style="font-size: 28px; color: #49c030;"></i>
+            {% elif not account.is_active %}
+                <i class="fa fa-times-circle" aria-hidden="true" style="font-size: 28px; color: #df2525;"></i>
+            {% endif %}
+        </h1>
+
         {% if userdata.image %}
             <img src="{% url 'website:get_image' userdata.image.id %}" style="max-height: 248px; max-width: 248px; min-height: 248px; min-width: 248px;">
         {% else %}
             <img src="{% static 'website/user_default_image.jpg' %}" alt="No image">
+        {% endif %}
+
+        {% if account.is_staff %}
+            <p style="padding-top:24px">This user is an administrator.</p>
+        {% elif not account.is_active %}
+            <p style="padding-top:24px">This account is suspended.</p>
         {% endif %}
 
         {% if userdata.description %}
@@ -50,6 +65,35 @@
         <br>
         <p>User score: {{ account|count_user_score }}</p>
     </div>
+
+    {% if account.id == request.user.id %}
+        <button type="button" id="report" style="margin: 15px 0;" onclick="displayModal()">Report user</button>
+    {% endif %}
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+      <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h5>Report User</h5>
+        <input type="radio" id="opt1" name="reason" value="This user has displayed inappropriate behavior.">
+        <label for="opt1">This user has displayed inappropriate behavior.</label><br>
+
+        <input type="radio" id="opt2" name="reason" value="This user has been posting reviews with incorrect information.">
+        <label for="opt2">This user has been posting reviews with incorrect information.</label><br>
+
+        <input type="radio" id="opt3" name="reason" value="other">
+        <label for="opt3">Other</label>
+        <br>
+        <textarea></textarea>
+        <br>
+        <button type="submit">Submit Report</button>
+    </div>
+
+    </div>
+
 
     <div class="tabs">
         <button class="tablinks active" onclick="switch_tabs(event, 'posts')">Posts by User</button>
@@ -135,7 +179,16 @@
                 </div>
 
                 <div id="comment-contents">
-                    <h3><a href="{% url 'website:profile' comment.user.id %}">{{ comment.user.username }}</a></h3>
+                    <h3>
+                        <a href="{% url 'website:profile' comment.user.id %}">
+                            {{ comment.user.username }}
+                            {% if comment.user.is_staff %}
+                                <i class="fa fa-certificate" aria-hidden="true" style="font-size: 20px; color: #49c030;"></i>
+                            {% elif not comment.user.is_active %}
+                                <i class="fa fa-times-circle" aria-hidden="true" style="font-size: 20px; color: #df2525;"></i>
+                            {% endif %}
+                        </a>
+                    </h3>
                     <p>{{ comment.content }}</p>
                     <p id="date">{{ comment.date }}</p>
                 </div>
@@ -148,4 +201,17 @@
             </div>
         {% endfor %}
     </div>
+
+    {% if account.is_active %}
+        <a id="delete-user"
+           href="{% url 'website:disable' account.id %}"
+           onclick="if(confirm('Disable this account?') == false) { return false; }"
+        >Disable account</a>
+    {% else %}
+        <a id="restore-user"
+           href="{% url 'website:restore' account.id %}"
+           onclick="if(confirm('Restore this account?') == false) { return false; }"
+        >Restore account</a>
+    {% endif %}
+
 {% endblock %}

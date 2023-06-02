@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from website.models import LikesUserMap
 from website.models import DislikesUserMap
 from website.models import UserData
+from website.models import Report
 
 register = template.Library()
 
@@ -74,6 +75,12 @@ def get_image_from_user(value):
     if isinstance(value, User):
         return UserData.objects.get(user=value).image
 
+
 @register.filter
 def get_image_id_from_user(value):
     return UserData.objects.get(user=value).image.id
+
+
+@register.filter
+def count_reports(user):
+    return len(Report.objects.filter(user=user))
