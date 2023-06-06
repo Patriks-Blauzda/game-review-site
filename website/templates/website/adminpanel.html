@@ -3,57 +3,63 @@
 {% load static %}
 
 {% block main %}
-    <h1 style="padding: 10px;">Admin Panel</h1>
+    {% if request.user.is_staff %}
+        <h1 style="padding: 10px;">Admin Panel</h1>
 
-    <div class="admin-panel-search">
-        <h2 style="padding: 10px;">Users</h2>
-        <form action="{% url 'website:admin_panel' %}" method="get" style="font-size: 0;">
-            <input name="user" type="text" placeholder="Search User...">
-            <button class="btn-search"><i class="fa fa-search" style="color: #f2f2f2;"></i></button>
-        </form>
-    </div>
+        <div class="admin-panel-search">
+            <h2 style="padding: 10px;">Users</h2>
+            <form action="{% url 'website:admin_panel' %}" method="get" style="font-size: 0;">
+                <input name="user" type="text" placeholder="Search User...">
+                <button class="btn-search"><i class="fa fa-search" style="color: #f2f2f2;"></i></button>
+            </form>
+        </div>
 
-    <div class="list">
-        {% for user in users %}
-            <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
-                <div class="list-element-main">
-                    <a href="{% url 'website:profile' user.id %}" style="width: 100%;">
-                        {% if user|get_image_from_user %}
-                            <img src="{% url 'website:get_image' user|get_image_id_from_user %}">
-                        {% else %}
-                            <img src="{% static 'website/user_default_image.jpg' %}" alt="No image">
-                        {% endif %}
-                        <h3>
-                            {{ user }}
-                            {% if user.is_staff %}
-                                <i class="fa fa-certificate" aria-hidden="true" style="font-size: 20px; color: #49c030;"></i>
-                            {% elif not user.is_active %}
-                                <i class="fa fa-times-circle" aria-hidden="true" style="font-size: 20px; color: #df2525;"></i>
+        <div class="list">
+            {% for user in users %}
+                <div class="list-element" style="{% cycle 'background-color: #f2f2f2;' 'background-color: #ffffff;' %}">
+                    <div class="list-element-main">
+                        <a href="{% url 'website:profile' user.id %}" style="width: 100%;">
+                            {% if user|get_image_from_user %}
+                                <img src="{% url 'website:get_image' user|get_image_id_from_user %}">
+                            {% else %}
+                                <img src="{% static 'website/user_default_image.jpg' %}" alt="No image">
                             {% endif %}
-                        </h3>
-                        <p>Reports: {{ user|count_reports }}</p>
+                            <h3>
+                                {{ user }}
+                                {% if user.is_staff %}
+                                    <i class="fa fa-certificate" aria-hidden="true" style="font-size: 20px; color: #49c030;"></i>
+                                {% elif not user.is_active %}
+                                    <i class="fa fa-times-circle" aria-hidden="true" style="font-size: 20px; color: #df2525;"></i>
+                                {% endif %}
+                            </h3>
+                            <p>Reports: {{ user|count_reports }}</p>
 
-                        <a id="user-reports" href="#">User Reports</a>
+                            <a id="user-reports" href="{% url 'website:admin_panel_reports' user.id %}">User Reports</a>
 
-                        {% if user.is_active %}
-                            <a id="delete-user"
-                               href="{% url 'website:disable' user.id %}"
-                               onclick="if(confirm('Disable this account?') == false) { return false; }"
-                            >Disable account</a>
-                        {% else %}
-                            <a id="restore-user"
-                               href="{% url 'website:restore' user.id %}"
-                               onclick="if(confirm('Restore this account?') == false) { return false; }"
-                            >Restore account</a>
-                            <a id="delete-user"
-                               href="{% url 'website:delete' 'user' user.id %}"
-                               onclick="if(confirm('Delete this account? This action cannot be undone.') == false) { return false; }"
-                            >Delete account</a>
-                        {% endif %}
+                            {% if not user.is_staff %}
+                                {% if user.is_active %}
+                                    <a id="delete-user"
+                                       href="{% url 'website:disable' user.id %}"
+                                       onclick="if(confirm('Disable this account?') == false) { return false; }"
+                                    >Disable account</a>
+                                {% else %}
+                                    <a id="restore-user"
+                                       href="{% url 'website:restore' user.id %}"
+                                       onclick="if(confirm('Restore this account?') == false) { return false; }"
+                                    >Restore account</a>
+                                    <a id="delete-user"
+                                       href="{% url 'website:delete' 'user' user.id %}"
+                                       onclick="if(confirm('Delete this account? This action cannot be undone.') == false) { return false; }"
+                                    >Delete account</a>
+                                {% endif %}
+                            {% endif %}
 
-                    </a>
+                        </a>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="padding: 10px; font-size: 30px;">You do not have permission to access this page.</p>
+    {% endif %}
 {% endblock %}

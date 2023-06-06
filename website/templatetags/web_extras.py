@@ -83,4 +83,11 @@ def get_image_id_from_user(value):
 
 @register.filter
 def count_reports(user):
-    return len(Report.objects.filter(user=user))
+    reports = Report.objects.filter(user=user)
+
+    count = 0
+    for report in reports:
+        count += report.count
+
+    return count
+

@@ -1,0 +1,54 @@
+{% extends "website/base.html" %}
+{% load web_extras %}
+{% load static %}
+
+{% block sidebar-params %} style="display: none;" {% endblock %}
+
+{% block main %}
+    {% if request.user.is_staff %}
+        <a id="user-reports" style="padding: 5px 10px; margin: 10px;" href="{% url 'website:admin_panel' %}">Return</a>
+
+        <h1 style="padding: 10px;">Admin Panel</h1>
+
+        <div class="admin-panel-search" style="width: 125%;">
+            <h2 style="padding: 10px;">Reports for {{ user.username }}</h2>
+
+            <form action="{% url 'website:admin_panel_reports' user.id %}" method="get" style="font-size: 0;">
+                <input name="reason" type="text" placeholder="Search Reports...">
+                <button class="btn-search"><i class="fa fa-search" style="color: #f2f2f2;"></i></button>
+            </form>
+
+        </div>
+
+        <table class="report-table">
+            <tr>
+                <th>Reason</th>
+                <th>Count</th>
+                <th>Approval</th>
+                <th></th>
+            </tr>
+            {% for report in reports %}
+                <tr>
+                    <td id="reason">{{ report.reason }}</td>
+                    <td>{{ report.count }}</td>
+                    <td><a href="{% url 'website:toggle_report' report.id %}">
+                        {% if report.approved %}
+                            <i class="fa fa-check" aria-hidden="true" style="color: #24c124;"></i>
+                        {% else %}
+                            <i class="fa fa-times" aria-hidden="true" style="color: #d91e1e;"></i>
+                        {% endif %}
+                    </a></td>
+                    <td>
+                        {% if not report.approved %}
+                            <a id="delete" href="{% url 'website:delete' 'report' report.id %}" style="padding: 5px;">
+                                <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p style="padding: 10px; font-size: 30px;">You do not have permission to access this page.</p>
+    {% endif %}
+{% endblock %}

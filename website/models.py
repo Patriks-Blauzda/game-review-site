@@ -61,13 +61,9 @@ class Game(models.Model):
 
 
 class Post(models.Model):
-    type = models.CharField(max_length=10)
-
     title = models.CharField(max_length=60)
     content = models.TextField(blank=True, null=True)
     pubdate = models.DateTimeField('date published', blank=True, null=True)
-
-    status = models.CharField(max_length=10, blank=True, null=True)
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -105,14 +101,6 @@ class Comment(models.Model):
 
 class Report(models.Model):
     reason = models.CharField(max_length=120)
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True)
-    developer = models.ForeignKey(Developer, on_delete=models.CASCADE, blank=True, null=True)
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, blank=True, null=True)
-
-
-class Warning(models.Model):
-    reason = models.CharField(max_length=120)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    count = models.PositiveIntegerField(default=1)
+    approved = models.BooleanField(default=False)

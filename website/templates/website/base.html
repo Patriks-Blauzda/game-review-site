@@ -60,7 +60,7 @@
         </nav>
         <div class="search">
             <form action="{% url 'website:search' %}" method="get" style="font-size: 0;">
-                <input name="q" type="text" placeholder="Search...">
+                <input maxlength="100" name="q" type="text" placeholder="Search...">
                 <button class="btn-search"><i class="fa fa-search" style="color: #f2f2f2;"></i></button>
             </form>
         </div>

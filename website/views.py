@@ -2,6 +2,7 @@ from datetime import datetime
 
 import django.views.defaults
 from django.db.models import Q
+from django.db.models import Count
 from django.shortcuts import render
 from django.utils import timezone
 import django.http as http
@@ -33,10 +34,18 @@ from .models import Report
 from django.urls import reverse_lazy
 
 
+def sort_reportcount(e):
+    reports = Report.objects.filter(user=e)
+
+    count = 0
+    for report in reports:
+        count += report.count
+
+    return count
+
 
 class AdminPanelView(generic.ListView):
     template_name = 'website/adminpanel.html'
-    queryset = User.objects.all()
 
     def get_queryset(self):
         return None
@@ -48,13 +57,31 @@ class AdminPanelView(generic.ListView):
         if query:
             users = User.objects.filter(Q(username__icontains=query))
 
+        users = list(users)
+        users.sort(key=sort_reportcount, reverse=True)
+
         return {"users": users}
 
 
-def sort_postcount(e):
-    if e.__class__.__name__ == "Game":
-        return len(Post.objects.filter(game=e))
-    return -1
+class AdminPanelReportsView(generic.ListView):
+    template_name = 'website/adminpanelreports.html'
+
+    def get_queryset(self):
+        return None
+
+    def get_context_data(self, **kwargs):
+        query = self.request.GET.get("reason")
+
+        user = User.objects.get(id=self.kwargs["pk"])
+        reports = Report.objects.filter(user=user).order_by('-approved', '-count')
+
+        if query:
+            reports = Report.objects.filter(Q(reason__icontains=query, user=user))
+
+        return {
+            "user": user,
+            "reports": reports
+        }
 
 
 def sort_gamecount(e):
@@ -418,7 +445,7 @@ class CreateView(generic.ListView):
             context = super().get_context_data(**kwargs)
 
             form = self.form_class
-            
+
             context["form"] = form
 
             context = context | sidebar_list
@@ -525,7 +552,7 @@ def delete(request, **kwargs):
             messages.error(request, "User is not author or staff member")
 
 
-    if obj == "user":
+    elif obj == "user":
         account = User.objects.get(id=kwargs['obj_id'])
         if request.user.is_staff and not account.is_active:
             messages.success(request, "Successfully deleted user account")
@@ -535,7 +562,7 @@ def delete(request, **kwargs):
             messages.error(request, "User is not a staff member")
 
 
-    if obj == "comment":
+    elif obj == "comment":
         comment = Comment.objects.get(id=kwargs['obj_id'])
         if request.user.is_staff or comment.user == request.user:
             messages.success(request, "Successfully deleted comment")
@@ -549,20 +576,24 @@ def delete(request, **kwargs):
             messages.error(request, "User is not author or staff member")
 
 
-    if request.user.is_staff and obj != "post":
+    elif request.user.is_staff and obj != "post":
         match obj.lower():
             case "game":
-                Game.objects.filter(id=kwargs['obj_id']).delete()
+                Game.objects.get(id=kwargs['obj_id']).delete()
                 messages.success(request, "Successfully deleted game")
                 return http.HttpResponseRedirect("/")
 
             case "developer":
-                Developer.objects.filter(id=kwargs['obj_id']).delete()
+                Developer.objects.get(id=kwargs['obj_id']).delete()
                 messages.success(request, "Successfully deleted developer")
 
             case "publisher":
-                Publisher.objects.filter(id=kwargs['obj_id']).delete()
+                Publisher.objects.get(id=kwargs['obj_id']).delete()
                 messages.success(request, "Successfully deleted publisher")
+
+            case "report":
+                Report.objects.get(id=kwargs['obj_id']).delete()
+                messages.success(request, "Successfully deleted report")
 
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -701,14 +732,58 @@ class UserProfile(generic.DetailView):
 
     def post(self, request, **kwargs):
         if request.user.is_authenticated:
-            content = self.request.POST['content']
-            userdata = UserData.objects.get(user=User.objects.get(id=self.kwargs['pk']))
-            Comment.objects.create(user=self.request.user, content=content, profileuserdata=userdata, date=datetime.now())
+            user = User.objects.get(id=self.kwargs['pk'])
+
+            if 'comment' in request.POST:
+
+                content = self.request.POST['content']
+                userdata = UserData.objects.get(user=user)
+                Comment.objects.create(user=self.request.user, content=content, profileuserdata=userdata, date=datetime.now())
+
+            elif 'report' in request.POST:
+                form = self.request.POST
+                content = form['reason']
+
+                if content == "other":
+                    content = form['reason-other']
+
+                if Report.objects.filter(reason=content, user=user).exists():
+                    current_report = Report.objects.get(reason=content, user=user)
+                    current_report.count += 1
+                    current_report.save()
+
+                else:
+                    Report.objects.create(reason=content, user=user)
+
+                messages.success(request, "User has been reported")
 
         else:
             return http.HttpResponseRedirect('account/user/register/')
 
+
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def toggle_report_approval(request, **kwargs):
+    if request.user.is_staff:
+        report = Report.objects.get(id=kwargs['report'])
+        report.approved = not report.approved
+        report.save()
+
+        if report.approved:
+            messages.success(request, "Report approved")
+        else:
+            messages.success(request, "Report unapproved")
+    else:
+        messages.error(request, "User is not staff member")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def sort_postcount(e):
+    if e.__class__.__name__ == "Game":
+        return len(Post.objects.filter(game=e))
+    return -1
 
 
 class UserSettings(generic.FormView):
@@ -991,13 +1066,3 @@ class PostsListView(generic.ListView):
             'latest_games': Game.objects.order_by("-id")[:5],
             'sort': sort,
         }
-
-
-def ReportView(request, object, pk):
-    content = "Reason for report"
-
-    user = User.objects.get(id=pk)
-    Report.objects.create(reason=content, user=user)
-    messages.success(request, "User has been reported")
-
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -8,7 +8,9 @@ app_name = 'website'
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
 
-    path('panel/', views.AdminPanelView.as_view(), name='admin_panel'),
+    path('panel/', login_required(views.AdminPanelView.as_view(), login_url=login_path), name='admin_panel'),
+    path('panel/reports/<int:pk>/', login_required(views.AdminPanelReportsView.as_view(), login_url=login_path), name='admin_panel_reports'),
+    path('panel/reports/approval/<int:report>/', login_required(views.toggle_report_approval, login_url=login_path), name='toggle_report'),
 
     path('game/<int:pk>/', views.GameView.as_view(), name='game'),
 
@@ -46,8 +48,6 @@ urlpatterns = [
 
     path('dislike/game/<int:game>/', login_required(views.dislike_game, login_url=login_path), name='dislike_game'),
     path('dislike/post/<int:post>/', login_required(views.dislike_post, login_url=login_path), name='dislike_post'),
-
-    path('report/<str:object>/<int:pk>/', login_required(views.ReportView, login_url=login_path), name='report'),
 
     path('image/<int:pk>', views.get_image, name='get_image'),
 ]
