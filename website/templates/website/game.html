@@ -9,7 +9,7 @@
 {% block sidebar %}
     <a href="{% url 'website:game' current_game.id %}">{{ current_game.title }}</a>
     {% if request.user.is_staff %}
-        <a href="{% url 'website:delete' 'game' current_game.id %}" style="  margin-top: -35px; margin-left: 220px;">
+        <a id="delete" href="{% url 'website:delete' 'game' current_game.id %}" style="  margin-top: -35px; margin-left: 220px;">
             <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
         </a>
     {% endif %}

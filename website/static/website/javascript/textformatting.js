@@ -37,8 +37,10 @@ function stylize(opener, closer = null) {
     let selection = window.getSelection();
     let inputbox = document.getElementById("input");
 
-    if(closer) { wrapSelection(opener, closer); }
+    if(closer != null) { wrapSelection(opener, closer); }
     else { wrapSelection(opener, opener); }
+
+    render()
 }
 
 
@@ -118,6 +120,7 @@ function render() {
     let sd = new showdown.Converter();
     sd.setOption('strikethrough', true);
     sd.setOption('underline', true);
+    sd.setOption('simpleLineBreaks', true);
 
     let inputbox = document.getElementById("input");
     let outputbox = document.getElementById("output");

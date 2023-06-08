@@ -569,9 +569,7 @@ def delete(request, **kwargs):
             comment.delete()
 
             if comment.post:
-                return http.HttpResponseRedirect("/post/" + str(comment.post.id))
-            if comment.game:
-                return http.HttpResponseRedirect("/post/" + str(comment.game.id))
+                return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
             messages.error(request, "User is not author or staff member")
 

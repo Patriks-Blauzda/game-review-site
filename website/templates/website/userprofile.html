@@ -67,29 +67,28 @@
     </div>
 
     {% if account.id != request.user.id %}
-        <button type="button" id="report" style="margin: 15px 0;" onclick="displayModal()">Report user</button>
+        <button type="button" id="report" style="margin: 15px 20px; padding: 10px;" onclick="displayModal()">Report User</button>
     {% endif %}
 
 
     <div id="report-popup" class="modal">
         <div class="report-popup-content">
+            <span class="close" onclick="closeModal()">&times;</span>
             <form method="post">
                 {% csrf_token %}
 
-                <span class="close" onclick="closeModal()">&times;</span>
+                <h5 style="padding: 10px 0 20px 0;">Report User</h5>
 
-                <h5>Report User</h5>
-
-                <input type="radio" id="opt1" name="reason" value="This user has displayed inappropriate behavior.">
+                <input type="radio" id="opt1" name="reason" value="This user has displayed inappropriate behavior." checked>
                 <label for="opt1">This user has displayed inappropriate behavior.</label><br>
 
                 <input type="radio" id="opt2" name="reason" value="This user has been posting reviews with incorrect information.">
                 <label for="opt2">This user has been posting reviews with incorrect information.</label><br>
 
-                <input type="radio" id="opt3" name="reason" value="other">
-                <label for="opt3">Other</label>
+                <input type="radio" id="opt-other" name="reason" value="other">
+                <label for="opt-other">Other</label>
                 <br>
-                <input type="text" name="reason-other">
+                <input type="text" name="reason-other" id="textbox-other" disabled="true" maxlength="120">
 
                 <br>
                 <button type="submit" name="report">Submit Report</button>

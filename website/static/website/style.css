@@ -363,6 +363,25 @@ nav > ul > li:hover > ul > li > a {
     padding: 3px;
 }
 
+.createform textarea {
+    margin: 15px 0;
+    resize: none;
+    width: 75%;
+}
+
+.createform input {
+    width: 45%;
+    height: 44px;
+    padding: 10px;
+}
+
+.createform select {
+    width: 25%;
+    height: 30px;
+    padding: 0 10px;
+}
+
+
 .textbox {
 
 }
@@ -374,7 +393,9 @@ nav > ul > li:hover > ul > li > a {
 .textbox > div {
     border: solid 1px black;
     outline: none;
-    height: 30%;
+    height: 75%;
+    overflow-y: scroll;
+    padding: 0 5px;
 }
 
 
@@ -676,6 +697,12 @@ footer {
   background-color: rgba(0,0,0,0.4);
 }
 
+
+#textbox-other {
+    background-color: black;
+}
+
+
 .report-popup-content {
   background-color: #fefefe;
   margin: 15% auto;
@@ -700,7 +727,7 @@ footer {
 
 
 .report-table {
-    width: 125%;
+    width: 100%;
     border-collapse: collapse;
 }
 

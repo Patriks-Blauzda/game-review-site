@@ -2,6 +2,9 @@
 {% load web_extras %}
 {% load static %}
 
+{% block main-params %} style="width: 100%;" {% endblock %}
+{% block sidebar-params %} style="display: none;" {% endblock %}
+
 {% block main %}
     {% if request.user.is_staff %}
         <h1 style="padding: 10px;">Admin Panel</h1>

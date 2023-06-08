@@ -1,29 +1,29 @@
 {% extends "website/base.html" %}
 
 {% block sidebar %}
-    <a href="#" style="
+    <a href="{% url 'website:entities' 'developers' %}?sort=-foundingdate" style="
     text-align:center; font-weight: bold; margin-top: 20px; font-size: 22px;">
         Recently added developers</a>
     <ul class="sidebar-list">
-        {% for dev in latest_devs.all %}
+        {% for developer in latest_devs.all %}
             <li>
-                <a href="#">
-                    {{ dev.title }}
+                <a href="{% url 'website:developer' developer.id %}">
+                    {{ developer.title }}
                 </a>
             </li>
         {% endfor %}
     </ul>
 
 
-    <a href="#" style="
+    <a href="{% url 'website:entities' 'publishers' %}?sort=-foundingdate" style="
         text-align:center; font-weight: bold; margin-top: 60px; white-space: nowrap;
         font-size: 22px;
     ">Recently added publishers</a>
     <ul class="sidebar-list">
-        {% for pub in latest_pubs.all %}
+        {% for publisher in latest_pubs.all %}
             <li>
-                <a href="#">
-                    {{ pub.title }}
+                <a href="{% url 'website:publisher' publisher.id %}">
+                    {{ publisher.title }}
                 </a>
             </li>
         {% endfor %}

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block head %}
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 	<script src="{% static 'website/javascript/renderpost.js' %}"></script>
 {% endblock %}
 
@@ -13,7 +13,7 @@
         <a href="{% url 'website:game' post.game.id %}">{{ post.game.title }}</a>
 
         {% if request.user.is_staff %}
-            <a href="{% url 'website:delete' 'game' post.game.id %}" style="  margin-top: -35px; margin-left: 220px;">
+            <a id="delete" href="{% url 'website:delete' 'game' post.game.id %}" style="  margin-top: -35px; margin-left: 220px;">
                 <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
             </a>
         {% endif %}
@@ -93,7 +93,7 @@
                 {% endif %}
 
                 {% if request.user.is_staff or request.user.username == post.author.username %}
-                    <a href="{% url 'website:delete' 'post' post.id %}" style="margin-left: 2rem;">
+                    <a id="delete" href="{% url 'website:delete' 'post' post.id %}" style="margin-left: 2rem;">
                         <i class="fa fa-trash" style="color: #db3d3d; font-size: 24px;"></i>
                     </a>
                 {% endif %}
@@ -106,7 +106,7 @@
                 </a>
             </p>
 
-            <div id="content">{{ post.content|linebreaks }}</div>
+            <div id="content">{{ post.content }}</div>
 
             <div style="border-top: solid 1px grey; margin: 15px 0;"></div>
             <div class="comments-list">
