@@ -1,3 +1,5 @@
+# File containing all database functionality and webpage displays
+
 from datetime import datetime
 
 import django.views.defaults
@@ -34,6 +36,7 @@ from .models import Report
 from django.urls import reverse_lazy
 
 
+# Sorts users by amount of times they have been reported
 def sort_reportcount(e):
     reports = Report.objects.filter(user=e)
 
@@ -44,6 +47,8 @@ def sort_reportcount(e):
     return count
 
 
+# Admin panel view sends list of all users, sorted by report count
+# Optionally searches for specific users if query is not empty (search bar)
 class AdminPanelView(generic.ListView):
     template_name = 'website/adminpanel.html'
 
@@ -63,6 +68,9 @@ class AdminPanelView(generic.ListView):
         return {"users": users}
 
 
+# Displays the reports a specified user has
+# Sends the user and reports associated with the user to the frontend
+# Optionally able to search for specific reports
 class AdminPanelReportsView(generic.ListView):
     template_name = 'website/adminpanelreports.html'
 
@@ -84,6 +92,7 @@ class AdminPanelReportsView(generic.ListView):
         }
 
 
+# Sorts publishers/developers by amount of games associated with them
 def sort_gamecount(e):
     match e.__class__.__name__:
         case "Developer":
@@ -93,6 +102,7 @@ def sort_gamecount(e):
     return -1
 
 
+# Sorts games/posts by score (sum of likes and dislikes)
 def sort_popularity(e):
     match e.__class__.__name__:
         case "Game":
@@ -102,6 +112,9 @@ def sort_popularity(e):
     return -9999999
 
 
+# Ensures elemnets are all sorted in lowercase (ignores uppercase when sorting)
+# Checks if the string to specify sort method has a '-' as the first character
+# '-' in front of the specified sorting method reverses the sorting
 def get_order(sort):
     if sort != "-id" and sort != "id":
         if sort[0] != '-':
@@ -112,6 +125,7 @@ def get_order(sort):
     return sort
 
 
+# Home page, popular games and posts, as well as the 10 newest games and posts
 class IndexView(generic.TemplateView):
     template_name = 'website/index.html'
     reverse_lazy('post')
@@ -132,6 +146,10 @@ class IndexView(generic.TemplateView):
         }
 
 
+# Displays all posts associated with current game
+# Gets and sends the currently viewed game, is sortable
+# Shows comments and allows writing comments
+# Enables the writing of comments with CommentForm
 class GameView(generic.ListView):
     model = Game
     template_name = 'website/game.html'
@@ -158,6 +176,8 @@ class GameView(generic.ListView):
             'form': CommentForm,
         }
 
+    # Saves comment to database, associated with specified game and user
+    # Redirects to the registering page if user is not logged in
     def post(self, request, **kwargs):
         if request.user.is_authenticated:
             content = self.request.POST['content']
@@ -170,6 +190,7 @@ class GameView(generic.ListView):
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# Simple class to handle the form input fields for comments
 class CommentForm(forms.ModelForm):
     name = "comment"
 
@@ -178,6 +199,8 @@ class CommentForm(forms.ModelForm):
         fields = ('content',)
 
 
+
+# Shows a written post (review) and comments
 class PostView(generic.DetailView):
     model = Post
     template_name = 'website/post.html'
@@ -191,6 +214,7 @@ class PostView(generic.DetailView):
             'form': CommentForm,
         }
 
+    # Same form data as line 181
     def post(self, request, **kwargs):
         if request.user.is_authenticated:
             content = self.request.POST['content']
@@ -203,6 +227,8 @@ class PostView(generic.DetailView):
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# Displays all games in the database, has sorting options
+# Displays newest games and posts on the sidebar
 class GamesListView(generic.TemplateView):
     template_name = 'website/gameslist.html'
     reverse_lazy('post')
@@ -231,11 +257,14 @@ class GamesListView(generic.TemplateView):
         }
 
 
+# Handles both developers and publishers, has sorting options
+# Displays latest developers and publishers added to database on the sidebar
 class EntityView(generic.ListView):
     template_name = 'website/entityview.html'
     model = Developer
 
     def get_context_data(self, **kwargs):
+        # If 'developers' is found in the url in the specified location, displays all developers
         if self.kwargs['entity'] == "developers":
             dev_list = list(Developer.objects.all())
             dev_list.sort(key=sort_popularity, reverse=True)
@@ -256,6 +285,8 @@ class EntityView(generic.ListView):
                 'latest_pubs': Publisher.objects.order_by("-id")[:5],
                 'sort': sort,
             }
+
+        # If 'publishers' is found in the url in the specified location, displays all publishers
         elif self.kwargs['entity'] == "publishers":
             pub_list = list(Publisher.objects.all())
             pub_list.sort(key=sort_popularity, reverse=True)
@@ -278,6 +309,7 @@ class EntityView(generic.ListView):
             }
 
 
+# Shows a specified developer and all associated games
 class DeveloperView(generic.DetailView):
     model = Developer
     template_name = 'website/developer.html'
@@ -289,6 +321,7 @@ class DeveloperView(generic.DetailView):
         }
 
 
+# Shows a publisher and all associated games
 class PublisherView(generic.DetailView):
     model = Publisher
     template_name = 'website/publisher.html'
@@ -300,6 +333,7 @@ class PublisherView(generic.DetailView):
         }
 
 
+# Form containing post creation input fields
 class PostForm(forms.ModelForm):
     name = "post"
     game_id = -1
@@ -309,6 +343,7 @@ class PostForm(forms.ModelForm):
         fields = ('title', 'content')
 
 
+# Form containing game creation fields, includes datetime field to specify release date
 class GameForm(forms.ModelForm):
     name = "game"
 
@@ -319,6 +354,7 @@ class GameForm(forms.ModelForm):
         widgets = {'releasedate': DateInput(attrs={'type': 'date'})}
 
 
+# Form containing developer creation fields, includes datetime field to specify founding date
 class DeveloperForm(forms.ModelForm):
     name = "entity"
 
@@ -329,6 +365,7 @@ class DeveloperForm(forms.ModelForm):
         widgets = {'foundingdate': DateInput(attrs={'type': 'date'})}
 
 
+# Form containing publisher creation fields, includes datetime field to specify founding date
 class PublisherForm(forms.ModelForm):
     name = "entity"
 
@@ -339,7 +376,10 @@ class PublisherForm(forms.ModelForm):
         widgets = {'foundingdate': DateInput(attrs={'type': 'date'})}
 
 
+# Handles all pages for creating objects (games, posts, publishers, developers) and saving the posted form data
 class CreateView(generic.ListView):
+    # Saves object to database if form data is valid
+    # If an image was uploaded, saves image and keeps the ID returned by the function add_image_to_db()
     def post(self, request, **kwargs):
         form = None
         image_id = None
@@ -399,14 +439,14 @@ class CreateView(generic.ListView):
 
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
 
-
     def get_queryset(self):
         return http.HttpResponseRedirect("http://127.0.0.1:8000/")
 
-
+    # Sends the specified form template to the frontend, and displays sidebar data
     def get_context_data(self, **kwargs):
         sidebar_list = {}
 
+        # Sends specified form templates and sidebar information to the frontend dependant on the current url
         if self.kwargs:
             if self.kwargs['object'] == "game":
                 self.template_name = 'website/creategame.html'
@@ -442,17 +482,21 @@ class CreateView(generic.ListView):
                     'latest_pubs': Publisher.objects.all().order_by("-id")[:5]
                 }
 
+            # Creates a temporary object of the current function to get specific data and combine it with
+            # sidebar data, sending a combined dict to the frontend
             context = super().get_context_data(**kwargs)
 
             form = self.form_class
 
             context["form"] = form
-
             context = context | sidebar_list
 
             return context
 
 
+# Encodes an image in base64 and adds it to the database
+# Refreshes the database so the image is visible immediately
+# Returns the ID of the image on the database
 def add_image_to_db(image):
     encoded_blob = base64.b64encode(image.read()).decode()
     row = Image.objects.create(binary_blob=encoded_blob)
@@ -462,6 +506,8 @@ def add_image_to_db(image):
     return row.id
 
 
+# Used in post creation (createpost.html, textformatting.js)
+# Calls add_image_to_db() and returns json data for use in JavaScript
 def add_temp_image(request):
     if request.FILES:
         image = request.FILES['image']
@@ -473,6 +519,9 @@ def add_temp_image(request):
     return http.HttpResponseForbidden()
 
 
+# Deletes all temporarily added images after user leaves post creation page without publishing
+# Receives the array containing IDs of images, iterates through them to delete them
+# If not receiving a post request, access is forbidden
 def delete_unused_images(request):
     if request.POST['images']:
 
@@ -490,6 +539,8 @@ def delete_unused_images(request):
     return http.HttpResponseForbidden()
 
 
+# Image is tied to specified url containing the image ID
+# The image is decoded and displayed on the url, as a result, these images can be displayed on other pages
 def get_image(request, **kwargs):
     id = kwargs['pk']
 
@@ -502,6 +553,7 @@ def get_image(request, **kwargs):
     return http.HttpResponse()
 
 
+# Disables the specified user's account if the logged in user is an administrator (staff)
 def disable_user(request, **kwargs):
     if request.user.is_staff:
         user = User.objects.get(id=kwargs['user_id'])
@@ -520,6 +572,7 @@ def disable_user(request, **kwargs):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# Reactivates specified user account if the logged in uesr is an administrator
 def restore_user(request, **kwargs):
     if request.user.is_staff:
         user = User.objects.get(id=kwargs['user_id'])
@@ -538,10 +591,11 @@ def restore_user(request, **kwargs):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-
+# Handles all deletion of database entries
 def delete(request, **kwargs):
     obj = kwargs['object']
 
+    # Deletes posts if logged in user is author of the post or an administrator
     if obj == "post":
         post = Post.objects.get(id=kwargs['obj_id'])
         if request.user.is_staff or post.author == request.user:
@@ -551,7 +605,8 @@ def delete(request, **kwargs):
         else:
             messages.error(request, "User is not author or staff member")
 
-
+    # Deletes user account if logged in user is an administrator
+    # Accessible through the admin panel
     elif obj == "user":
         account = User.objects.get(id=kwargs['obj_id'])
         if request.user.is_staff and not account.is_active:
@@ -561,7 +616,7 @@ def delete(request, **kwargs):
         else:
             messages.error(request, "User is not a staff member")
 
-
+    # Deletes comments if logged in user is author of the post or an administrator
     elif obj == "comment":
         comment = Comment.objects.get(id=kwargs['obj_id'])
         if request.user.is_staff or comment.user == request.user:
@@ -573,7 +628,7 @@ def delete(request, **kwargs):
         else:
             messages.error(request, "User is not author or staff member")
 
-
+    # Delete operations meant exclusively for administrators
     elif request.user.is_staff and obj != "post":
         match obj.lower():
             case "game":
@@ -602,19 +657,24 @@ def delete(request, **kwargs):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# Registration form template
+# Password security checking is done by Django
 class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'password1', 'password2', 'email']
-        # limit username length
 
 
+# Login form template
+# Password field input is hidden
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=40)
     password = forms.CharField(max_length=40, widget=forms.PasswordInput)
 
 
+# Handles user login and register pages
 class AccountView(generic.FormView):
+    # Uses the relevant html file according to the current url
     def get_context_data(self, **kwargs):
         match self.kwargs['action']:
             case 'register':
@@ -639,16 +699,21 @@ class AccountView(generic.FormView):
             case 'register':
                 form = RegisterForm(request.POST)
 
+                # Checks if the email inputted already exists in another account
                 if form.is_valid():
                     if not User.objects.filter(email=form.cleaned_data['email']).exists():
                         form.save()
 
+                        # Used to limit usernames to 20 characters
                         un = form.cleaned_data['username'][:20]
                         pw = form.cleaned_data['password1']
 
+                        # Authenticates the form data to make sure the forms are filled out correctly
+                        # Creates a new UserData row associated with the newly created account
                         auth = authenticate(request, username=un, password=pw)
                         UserData.objects.create(user=User.objects.get(username=auth))
 
+                        # Logs in the just registered user and redirects to home page
                         if auth:
                             login(request, auth)
 
@@ -663,6 +728,7 @@ class AccountView(generic.FormView):
                         return render(request, 'website/register.html', {'form': form})
 
                 else:
+                    # Displays all issues present in the registration form fields (username, password security)
                     messages.error(request, form.errors)
                     return render(request, 'website/register.html', {'form': form})
 
@@ -682,9 +748,10 @@ class AccountView(generic.FormView):
                         if next:
                             return http.HttpResponseRedirect(next)
                         else:
-
                             return http.HttpResponseRedirect("/")
 
+                    # is_active controls whether a user's account is enabled or disabled
+                    # Owners of disabled accounts are unable to log in
                     elif User.objects.filter(username=un).exists():
                         if not User.objects.get(username=un).is_active:
                             messages.error(request, "This account has been deactivated")
@@ -710,6 +777,7 @@ def log_user_out(request):
     return http.HttpResponseRedirect("/")
 
 
+# Handles user profiles and displays user data
 class UserProfile(generic.DetailView):
     model = User
     template_name = "website/userprofile.html"
@@ -733,11 +801,12 @@ class UserProfile(generic.DetailView):
             user = User.objects.get(id=self.kwargs['pk'])
 
             if 'comment' in request.POST:
-
                 content = self.request.POST['content']
                 userdata = UserData.objects.get(user=user)
                 Comment.objects.create(user=self.request.user, content=content, profileuserdata=userdata, date=datetime.now())
 
+            # Submits a report to the administrators
+            # If a report already exists, increase that report's count by 1
             elif 'report' in request.POST:
                 form = self.request.POST
                 content = form['reason']
@@ -762,6 +831,8 @@ class UserProfile(generic.DetailView):
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# Changes if a report is approved or unapproved
+# Approved reports are shown higher up than unapproved reports and they cannot be deleted until unapproved
 def toggle_report_approval(request, **kwargs):
     if request.user.is_staff:
         report = Report.objects.get(id=kwargs['report'])
@@ -778,12 +849,14 @@ def toggle_report_approval(request, **kwargs):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# Sorts games by amount of posts created for this game
 def sort_postcount(e):
     if e.__class__.__name__ == "Game":
         return len(Post.objects.filter(game=e))
     return -1
 
 
+# Handles account settings where users can change account information
 class UserSettings(generic.FormView):
     model = User
     template_name = "website/usersettings.html"
@@ -794,13 +867,19 @@ class UserSettings(generic.FormView):
 
         userdata = UserData.objects.get(user=request.user)
 
+        # The tabs of settings have separate form submit buttons,
+        # which will be the tab that appears when the page refreshes
+        # Checks all form input fields and makes changes regarding those which are not empty
         if form['tab'] == "account":
+
+            # Changes username if the chosen username does not already exist
+            # Must input password to make this change
             new_username = form['new_username']
             if new_username != '':
                 if check_password(form['username_password_auth'], request.user.password):
                     if not User.objects.filter(username=new_username).exists():
                         user = request.user
-                        user.username = new_username[:25]
+                        user.username = new_username[:20]
                         user.save()
 
                         messages.success(request, "Username updated")
@@ -811,8 +890,9 @@ class UserSettings(generic.FormView):
 
             return http.HttpResponseRedirect("?tab=account")
 
-
-
+            # Changes the user's password
+            # Must input password to make this change
+            # New password must be entered in two fields
             old_password = form['old_password']
             if old_password != '':
                 if check_password(old_password, request.user.password):
@@ -840,6 +920,7 @@ class UserSettings(generic.FormView):
             if files:
                 profile_picture = files['picture']
 
+                # Saves new profile picture and adds it to UserData
                 if profile_picture:
                     if userdata.image:
                         encoded_blob = base64.b64encode(profile_picture.read()).decode()
@@ -856,6 +937,7 @@ class UserSettings(generic.FormView):
 
                     messages.success(request, "Profile picture updated")
 
+            # Updates the profile description
             description = form['description']
             if description != userdata.description:
                 userdata.description = description
@@ -868,6 +950,7 @@ class UserSettings(generic.FormView):
 
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+    # Sends UserData and the default tab to the frontend
     def get_context_data(self, **kwargs):
         tab = self.request.GET.get("tab")
 
@@ -880,7 +963,7 @@ class UserSettings(generic.FormView):
         }
 
 
-
+# Sorts objects alphabetically
 def sort_title(e):
     name = e.__class__.__name__
     if name == "User":
@@ -889,6 +972,7 @@ def sort_title(e):
         return e.title.lower()
 
 
+# Sorts objects by date, excluding time
 def sort_date(e):
     name = e.__class__.__name__
 
@@ -904,26 +988,33 @@ def sort_date(e):
         return timezone.make_aware(datetime(1970, 1, 1))
 
 
+# Sorts objects by ID
 def sort_id(e):
     return e.id
 
 
+# Sorts objects alphabetically by the name of the object's class (User, Post, Game, etc.)
 def sort_type(e):
     return e.__class__.__name__
 
 
+# Returns search query from the search box on the navbar
 def get_search_results(query, sortmethod):
+    # All ojects are filtered by title and description, or users by their usernames
     post = Post.objects.filter(Q(title__icontains=query) | Q(content__icontains=query))
     game = Game.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     developer = Developer.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     publisher = Publisher.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     user = User.objects.filter(Q(username__icontains=query))
 
+    # Combines all objects into one list
     query_list = list(chain(post, game, developer, publisher, user))
 
+    # Default sorting method
     if not sortmethod:
         sortmethod = "title"
 
+    # Sorts all combined objects by specified sorting method
     match sortmethod:
         case "title":
             query_list.sort(key=sort_title)
@@ -951,6 +1042,8 @@ def get_search_results(query, sortmethod):
     return query_list
 
 
+# Handles the search page
+# Search results are handled by the function get_search_results()
 class SearchView(generic.ListView):
     template_name = "website/search.html"
 
@@ -966,7 +1059,8 @@ class SearchView(generic.ListView):
         }
 
 
-# add a way to display likes to debug this
+# Adds or removes instances of users liking an object
+# If a user has disliked the object, the dislike will be removed before the like is added
 def like_game(request, game):
     if LikesUserMap.objects.filter(user=request.user, game=Game.objects.get(id=game)).exists():
         obj = LikesUserMap.objects.get(user=request.user, game=Game.objects.get(id=game))
@@ -981,11 +1075,14 @@ def like_game(request, game):
 
     likes = len(LikesUserMap.objects.filter(game=Game.objects.get(id=game))) - len(
         DislikesUserMap.objects.filter(game=Game.objects.get(id=game)))
+
     has_liked = LikesUserMap.objects.filter(user=request.user, game=game).exists()
 
     return http.JsonResponse({"like": likes, "has_liked": has_liked}, status=201)
 
 
+# Adds or removes instances of users disliking an object
+# If a user has liked the object, the like will be removed before the dislike is added
 def dislike_game(request, game):
     if DislikesUserMap.objects.filter(user=request.user, game=Game.objects.get(id=game)).exists():
         obj = DislikesUserMap.objects.get(user=request.user, game=Game.objects.get(id=game))
@@ -1000,11 +1097,13 @@ def dislike_game(request, game):
 
     likes = len(LikesUserMap.objects.filter(game=Game.objects.get(id=game))) - len(
         DislikesUserMap.objects.filter(game=Game.objects.get(id=game)))
+
     has_disliked = DislikesUserMap.objects.filter(user=request.user, game=game).exists()
 
     return http.JsonResponse({"like": likes, "has_disliked": has_disliked}, status=201)
 
 
+# Functions the same way as like_game() on line 1064, but is used for posts instead
 def like_post(request, post):
     if LikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
         obj = LikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post))
@@ -1024,6 +1123,7 @@ def like_post(request, post):
     return http.JsonResponse({"like": likes, "has_liked": has_liked}, status=201)
 
 
+# Functions the same way as dislike_game on line 1086, but is used for posts instead
 def dislike_post(request, post):
     if DislikesUserMap.objects.filter(user=request.user, post=Post.objects.get(id=post)).exists():
         obj = DislikesUserMap.objects.get(user=request.user, post=Post.objects.get(id=post))
@@ -1043,6 +1143,8 @@ def dislike_post(request, post):
     return http.JsonResponse({"like": likes, "has_disliked": has_disliked}, status=201)
 
 
+# Handles the posts list page, where all posts are visible, has sorting options
+# Shows latest posts and games on the sidebar
 class PostsListView(generic.ListView):
     template_name = "website/postslist.html"
     model = Post
