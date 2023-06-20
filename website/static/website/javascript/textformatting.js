@@ -4,7 +4,6 @@ function getCookie(name) {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = cookies[i].trim();
-            // Checking if the cookie substring matches what we want
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break
@@ -14,7 +13,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
+// Wraps highlighted text with specified symbols or places symbols on cursor in text otherwise
 function wrapSelection(opener, closer) {
     let inputbox = document.getElementById("input");
     let output;
@@ -33,6 +32,7 @@ function wrapSelection(opener, closer) {
 
 }
 
+// Uses specified strings containing symbols to call wrapSelection(), then renders changes made
 function stylize(opener, closer = null) {
     let selection = window.getSelection();
     let inputbox = document.getElementById("input");
@@ -43,7 +43,7 @@ function stylize(opener, closer = null) {
     render()
 }
 
-
+// Toggles formatting option buttons (link, image)
 function toggleVisibility(elementid) {
     let options = document.getElementById("textformatoptions").children;
 
@@ -57,7 +57,7 @@ function toggleVisibility(elementid) {
     element.hidden = !element.hidden;
 }
 
-
+// Input formatted link into the textbox
 function pasteLink() {
     let link = document.getElementById("formatlinkinput").value;
     let text = document.getElementById("formatlinktextinput").value;
@@ -73,8 +73,12 @@ function pasteLink() {
     }
 }
 
+// Stores image IDs to be deleted if user leaves page without publishing
 const saved_images = [];
 
+// Adds specified image to database through specified url using formdata
+// After receiving the ID from backend, adds it to the saved_images array
+// Outputs the formatted link to the image just added to the website
 function uploadImage() {
     const url = "http://" + location.hostname + ":" + location.port + "/addtempimage/";
 
@@ -104,7 +108,7 @@ function uploadImage() {
 
 }
 
-
+// Inputs any image link formatted to display the image
 function pasteImage() {
     let imagelink = document.getElementById("formatimginput").value;
 
@@ -115,7 +119,10 @@ function pasteImage() {
     }
 }
 
-
+// Converts ShowdownJS formatting into html code
+// Converted code is shown in the "output" html element to show a preview of the review
+// Contains additional ShowdownJS formatting options (strikethrough, underline)
+// "simpleLineBreaks" is used to create a line break with only one new line instead of the standard two
 function render() {
     let sd = new showdown.Converter();
     sd.setOption('strikethrough', true);
@@ -135,7 +142,7 @@ function render() {
 
 window.onload = render;
 
-
+// unused(?)
 function readFile() {
 
   if (!this.files || !this.files[0]) return;
@@ -151,17 +158,19 @@ function readFile() {
 
 }
 
-
+// Confirmation popup for leaving
 window.addEventListener("beforeunload", (event) => {
     if(!submitting) {
         event.returnValue = 'Are you sure you want to leave? Information will not be saved.';
     }
 });
 
-
+// If form is being submitted (review is published), makes sure saved images are not deleted upon leaving the page
 var submitting = false;
 function submitForm() { submitting = true; };
 
+// If leaving the page without publishing the review, sends all temp image IDs to the backend through specified url
+// Images are deleted upon leaving to remove unused images from the database automatically
 window.onunload = function () {
     if(!submitting) {
         const data = new FormData();

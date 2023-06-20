@@ -1,10 +1,13 @@
+// Splits and decodes cookies before returning them
 function getCookie(name) {
     var cookieValue = null;
+
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
+
         for (var i = 0; i < cookies.length; i++) {
             var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
+
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break
@@ -13,6 +16,11 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// Sends a request to the backend to execute function like_game() (on line 970) through specified url
+// Then updates the object's like/dislike count without refreshing the webpage
+// Also changes like/dislike button visually
+// Functions all do the same thing, but are separated for liking/disliking and object being liked (game or post)
 
 function like_game(game_id){
     const url = "http://" + location.hostname + ":" + location.port + "/like/game/" + game_id + "/";
@@ -47,6 +55,7 @@ function like_game(game_id){
 
     });
 }
+
 
 function dislike_game(game_id){
     const url = "http://" + location.hostname + ":" + location.port + "/dislike/game/" + game_id + "/";

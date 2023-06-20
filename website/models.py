@@ -2,8 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Table models created for the database
 
+
+# Image table storing image data encoded in base64, stored in binary_blob
 class Image(models.Model):
     alt_text = models.CharField(max_length=60, blank=True, null=True)
     width = models.PositiveSmallIntegerField(default=128)
@@ -36,6 +38,7 @@ class Publisher(models.Model):
         return self.title
 
 
+# Extension of inbuilt User table, used for finding user profile pictures and descriptions
 class UserData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True, null=True)
@@ -76,6 +79,7 @@ class Post(models.Model):
         return self.title
 
 
+# Likes and dislikes are stored individually per user to prevent liking or disliking more than once
 class LikesUserMap(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)

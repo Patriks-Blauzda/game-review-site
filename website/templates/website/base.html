@@ -1,5 +1,9 @@
 {% load static %}
 
+<!-- Framework for every page on the website -->
+<!-- All HTML files use Django Template Language features to display data more conveniently -->
+
+
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{% static 'website/style.css' %}">
@@ -12,6 +16,7 @@
 <body {% block bodyattributes %}{%endblock %}>
     {% block bodyfirst %}{% endblock %}
 
+    <!-- Navbar present on every page, expandable dropdown buttons implemented using nested lists -->
     <header class="header">
         <nav>
             <a href="/" class="app-name">Game Review Blog</a>
@@ -58,6 +63,7 @@
                 {% endif %}
             </ul>
         </nav>
+
         <div class="search">
             <form action="{% url 'website:search' %}" method="get" style="font-size: 0;">
                 <input maxlength="100" name="q" type="text" placeholder="Search...">

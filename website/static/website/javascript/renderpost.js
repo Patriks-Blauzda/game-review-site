@@ -1,3 +1,4 @@
+// Responsible for displaying formatting used in reviews
 function render() {
     let sd = new showdown.Converter();
     sd.setOption('strikethrough', true);
