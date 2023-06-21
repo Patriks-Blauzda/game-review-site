@@ -112,7 +112,7 @@ def sort_popularity(e):
     return -9999999
 
 
-# Ensures elemnets are all sorted in lowercase (ignores uppercase when sorting)
+# Ensures elements are all sorted in lowercase (ignores uppercase when sorting)
 # Checks if the string to specify sort method has a '-' as the first character
 # '-' in front of the specified sorting method reverses the sorting
 def get_order(sort):
@@ -228,7 +228,7 @@ class PostView(generic.DetailView):
 
 
 # Displays all games in the database, has sorting options
-# Displays newest games and posts on the sidebar
+# Displays the newest games and posts on the sidebar
 class GamesListView(generic.TemplateView):
     template_name = 'website/gameslist.html'
     reverse_lazy('post')
@@ -258,7 +258,7 @@ class GamesListView(generic.TemplateView):
 
 
 # Handles both developers and publishers, has sorting options
-# Displays latest developers and publishers added to database on the sidebar
+# Displays the latest developers and publishers added to database on the sidebar
 class EntityView(generic.ListView):
     template_name = 'website/entityview.html'
     model = Developer
